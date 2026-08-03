@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // RamayanaData collection: Public read-only access for all users
+    match /RamayanaData/{language}/{category}/{document=**} {
+      allow read: if true;
+      allow write: if false; // Enforce strict read-only access
+    }
+
+    // Default deny for any other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
