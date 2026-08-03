@@ -1,0 +1,29 @@
+name: bhagavatam_translation_demo
+description: Demo - Gujarati JSON ne translate kari ne Firestore ma gu/en/hi collections ma add karvu
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Firebase
+  firebase_core: ^3.6.0
+  cloud_firestore: ^5.4.4
+
+  # Real translation (Google Translate wrapper) - flutter_translation package
+  # is only for static UI localization, NOT for translating dynamic content,
+  # so this is the correct package for this task.
+  translator: ^1.0.3+1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/main_data.json
