@@ -46,7 +46,7 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
             ?.getLocalizedTitle(langCode) ??
         widget.item.category;
     final text =
-        '🚩 *$title* ($categoryName)\n\n${widget.item.description}\n\n— ${AppStrings.get('share_text', langCode)}';
+        '🚩 *$title* ($categoryName)\n\n${widget.item.description}\n\n- ${AppStrings.get('share_text', langCode)}';
 
     try {
       Share.share(text);

@@ -7,9 +7,9 @@ import '../models/ramayan_category.dart';
 import '../providers/favorites_provider.dart';
 import '../providers/history_provider.dart';
 import '../providers/language_provider.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../widgets/category_card.dart';
 import '../widgets/custom_app_bar.dart';
-import '../widgets/diya_painter.dart';
 import '../widgets/hero_banner.dart';
 import '../widgets/navigation_shell.dart';
 import '../widgets/ramayan_item_card.dart';
@@ -20,6 +20,7 @@ import 'category_screen.dart';
 import 'favorites_screen.dart';
 import 'item_detail_screen.dart';
 import 'settings_screen.dart';
+import 'status_screen.dart';
 
 /// MainNavigationScreen wraps the application screens using NavigationShell.
 class MainNavigationScreen extends StatefulWidget {
@@ -43,8 +44,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     final pages = [
       HomeScreen(onNavigate: _onDestinationSelected),
       const CategoriesListScreen(),
-      const FavoritesScreen(),
-      const SettingsScreen(),
+      const StatusScreen(),        // index 2 — new
+      const FavoritesScreen(),     // index 3 (was 2)
+      const SettingsScreen(),      // index 4 (was 3)
     ];
 
     return NavigationShell(
@@ -90,20 +92,19 @@ class CategoriesListScreen extends ConsumerWidget {
       body: SafeArea(
         child: ResponsiveContainer(
           maxWidth: 1280.0,
-          child: GridView.builder(
+          child: MasonryGridView.count(
             padding: const EdgeInsets.all(16.0),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: crossAxisCount,
-              crossAxisSpacing: 16.0,
-              mainAxisSpacing: 16.0,
-              childAspectRatio: 1.15,
-            ),
+            crossAxisCount: crossAxisCount,
+            mainAxisSpacing: 16.0,
+            crossAxisSpacing: 16.0,
             itemCount: RamayanCategory.categories.length,
             itemBuilder: (context, index) {
               final category = RamayanCategory.categories[index];
+              final height = (index % 2 == 0) ? 155.0 : 185.0;
               return CategoryCard(
                 category: category,
                 languageCode: language.code,
+                height: height,
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -165,7 +166,6 @@ class HomeScreen extends ConsumerWidget {
                   children: [
                     // 1. Divine Hero Banner
                     HeroBanner(languageCode: language.code),
-                    const SizedBox(height: 8),
 
                     // 2. Continue Reading Card (Only if active item exists)
                     if (continueReadingItem != null) ...[
@@ -186,7 +186,6 @@ class HomeScreen extends ConsumerWidget {
                           );
                         },
                       ),
-                      const SizedBox(height: 12),
                     ],
 
                     // 3. Main Categories Grid Header
@@ -208,38 +207,40 @@ class HomeScreen extends ConsumerWidget {
                                   : AppColors.textDarkBrown,
                             ),
                           ),
-                          const DiyaWidget(size: 20),
+                          // const DiyaWidget(size: 20),
                         ],
                       ),
                     ),
 
-                    // 4. Main 8 Categories Grid
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
+                    // 4. Main 8 Categories Grid (Staggered Grid View)
+                    Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      child: StaggeredGrid.count(
                         crossAxisCount: categoryCrossAxisCount,
-                        crossAxisSpacing: 14.0,
                         mainAxisSpacing: 14.0,
-                        childAspectRatio: 1.15,
+                        crossAxisSpacing: 14.0,
+                        children: RamayanCategory.categories
+                            .asMap()
+                            .entries
+                            .map((entry) {
+                          final index = entry.key;
+                          final category = entry.value;
+                          final height =  175.0;
+                          return CategoryCard(
+                            category: category,
+                            languageCode: language.code,
+                            height: height,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      CategoryScreen(category: category),
+                                ),
+                              );
+                            },
+                          );
+                        }).toList(),
                       ),
-                      itemCount: RamayanCategory.categories.length,
-                      itemBuilder: (context, index) {
-                        final category = RamayanCategory.categories[index];
-                        return CategoryCard(
-                          category: category,
-                          languageCode: language.code,
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    CategoryScreen(category: category),
-                              ),
-                            );
-                          },
-                        );
-                      },
                     ),
 
                     // 5. Recently Viewed Section (Only if history exists)

@@ -126,3 +126,80 @@ class SkeletonDetailView extends StatelessWidget {
     );
   }
 }
+
+/// Skeleton shimmer loader for the Status screen.
+/// Renders 9:16 aspect-ratio card placeholders matching StatusCard dimensions.
+class SkeletonStatusGrid extends StatelessWidget {
+  final int itemCount;
+
+  const SkeletonStatusGrid({super.key, this.itemCount = 3});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseColor =
+        isDark ? AppColors.shimmerBaseDark : AppColors.shimmerBaseLight;
+    final highlightColor = isDark
+        ? AppColors.shimmerHighlightDark
+        : AppColors.shimmerHighlightLight;
+
+    return Shimmer.fromColors(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        itemCount: itemCount,
+        separatorBuilder: (_, _i) => const SizedBox(height: 20),
+        itemBuilder: (context, index) {
+          return AspectRatio(
+            aspectRatio: 9 / 16,
+            child: Container(
+              decoration: BoxDecoration(
+                color: baseColor,
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// Compact status card skeleton row for inline previews.
+class SkeletonStatusRow extends StatelessWidget {
+  const SkeletonStatusRow({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseColor =
+        isDark ? AppColors.shimmerBaseDark : AppColors.shimmerBaseLight;
+    final highlightColor = isDark
+        ? AppColors.shimmerHighlightDark
+        : AppColors.shimmerHighlightLight;
+
+    return Shimmer.fromColors(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: SizedBox(
+        height: 200,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: 4,
+          separatorBuilder: (_, _i) => const SizedBox(width: 12),
+          itemBuilder: (_, _j) => AspectRatio(
+            aspectRatio: 9 / 16,
+            child: Container(
+              decoration: BoxDecoration(
+                color: baseColor,
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

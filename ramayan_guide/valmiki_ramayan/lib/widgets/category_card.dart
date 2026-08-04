@@ -7,12 +7,14 @@ class CategoryCard extends StatefulWidget {
   final RamayanCategory category;
   final String languageCode;
   final VoidCallback onTap;
+  final double? height;
 
   const CategoryCard({
     super.key,
     required this.category,
     required this.languageCode,
     required this.onTap,
+    this.height,
   });
 
   @override
@@ -66,68 +68,99 @@ class _CategoryCardState extends State<CategoryCard>
           onTapUp: _onTapUp,
           onTapCancel: _onTapCancel,
           child: AnimatedScale(
-            scale: _isHovered ? 1.015 : 1.0,
+            scale: _isHovered ? 1.02 : 1.0,
             duration: const Duration(milliseconds: 180),
             curve: Curves.easeInOut,
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 180),
+              height: widget.height,
               decoration: BoxDecoration(
-                color: isDark ? AppColors.darkCard : AppColors.parchmentCard,
                 borderRadius: BorderRadius.circular(20.0),
                 border: Border.all(
                   color: _isHovered
                       ? AppColors.warmGold
-                      : AppColors.warmGold.withValues(alpha: isDark ? 0.3 : 0.4),
-                  width: _isHovered ? 1.8 : 1.2,
+                      : AppColors.warmGold.withValues(alpha: isDark ? 0.4 : 0.5),
+                  width: _isHovered ? 2.0 : 1.2,
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: _isHovered
-                        ? AppColors.warmGold.withValues(alpha: isDark ? 0.3 : 0.25)
-                        : Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+                        ? AppColors.warmGold.withValues(alpha: isDark ? 0.35 : 0.3)
+                        : Colors.black.withValues(alpha: isDark ? 0.4 : 0.12),
                     blurRadius: _isHovered ? 16 : 10,
                     offset: Offset(0, _isHovered ? 6 : 4),
                   ),
                 ],
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(18.8),
+                child: Stack(
+                  fit: StackFit.expand,
                   children: [
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 180),
-                      padding: const EdgeInsets.all(14.0),
+                    // ── Category Image Asset ──────────────────────────────
+                    Image.asset(
+                      widget.category.imageAsset,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: isDark
+                              ? AppColors.darkCard
+                              : AppColors.parchmentCard,
+                          child: Icon(
+                            widget.category.icon,
+                            size: 40,
+                            color: AppColors.deepSaffron,
+                          ),
+                        );
+                      },
+                    ),
+
+                    // ── Gradient Overlay for Text Readability ─────────────
+                    Container(
                       decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.deepSaffron
-                            .withValues(alpha: isDark ? 0.2 : 0.1),
-                        border: Border.all(
-                          color: AppColors.warmGold.withValues(alpha: 0.5),
-                          width: 1,
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withValues(alpha: 0.15),
+                            Colors.black.withValues(alpha: 0.35),
+                            Colors.black.withValues(alpha: 0.85),
+                          ],
+                          stops: const [0.0, 0.5, 1.0],
                         ),
                       ),
-                      child: Icon(
-                        widget.category.icon,
-                        size: 32.0,
-                        color: isDark
-                            ? AppColors.brightSaffron
-                            : AppColors.deepSaffron,
-                      ),
                     ),
-                    const SizedBox(height: 12.0),
-                    Text(
-                      title,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTypography.getStyle(
-                        languageCode: widget.languageCode,
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.bold,
-                        color: isDark
-                            ? AppColors.textLightIvory
-                            : AppColors.textDarkBrown,
+
+                    // ── Category Title & Accent ────────────────────────────
+                    Positioned(
+                      left: 12.0,
+                      right: 12.0,
+                      bottom: 12.0,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            title,
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTypography.getStyle(
+                              languageCode: widget.languageCode,
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFFFFF8E8), // Warm Ivory
+                              height: 1.25,
+                            ).copyWith(
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black.withValues(alpha: 0.9),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],

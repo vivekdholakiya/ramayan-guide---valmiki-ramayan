@@ -29,6 +29,7 @@ class WebDesktopNavBar extends ConsumerWidget implements PreferredSizeWidget {
     final navItems = [
       AppStrings.get('nav_home', language.code),
       AppStrings.get('nav_categories', language.code),
+      AppStrings.get('nav_status', language.code),   // index 2 — new
       AppStrings.get('nav_favorites', language.code),
       AppStrings.get('nav_settings', language.code),
     ];

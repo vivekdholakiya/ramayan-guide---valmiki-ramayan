@@ -7,6 +7,7 @@ class RamayanCategory {
   final String hi;
   final String en;
   final IconData icon;
+  final String imageAsset;
 
   const RamayanCategory({
     required this.id,
@@ -14,6 +15,7 @@ class RamayanCategory {
     required this.hi,
     required this.en,
     required this.icon,
+    required this.imageAsset,
   });
 
   /// Helper getter to retrieve localized title based on language code.
@@ -37,6 +39,7 @@ class RamayanCategory {
       hi: 'सात कांड',
       en: 'Seven Kandas',
       icon: Icons.menu_book_rounded,
+      imageAsset: 'assets/images/seven_kand.png',
     ),
     RamayanCategory(
       id: 'rishio',
@@ -44,13 +47,15 @@ class RamayanCategory {
       hi: 'ऋषि मुनि',
       en: 'Rishis & Sages',
       icon: Icons.self_improvement_rounded,
+      imageAsset: 'assets/images/rishis.png',
     ),
     RamayanCategory(
       id: 'vanaro',
       gu: 'વાનરો',
-      hi: 'वानर',
+      hi: 'વાનર',
       en: 'Vanaras',
       icon: Icons.pets_rounded,
+      imageAsset: 'assets/images/vanaras.png',
     ),
     RamayanCategory(
       id: 'rakshaso',
@@ -58,6 +63,7 @@ class RamayanCategory {
       hi: 'राक्षस',
       en: 'Rakshasas',
       icon: Icons.shield_rounded,
+      imageAsset: 'assets/images/rakshasas.png',
     ),
     RamayanCategory(
       id: 'anya_patrono',
@@ -65,6 +71,7 @@ class RamayanCategory {
       hi: 'अन्य पात्र',
       en: 'Other Characters',
       icon: Icons.groups_rounded,
+      imageAsset: 'assets/images/other_char.png',
     ),
     RamayanCategory(
       id: 'mukhya_sthalo',
@@ -72,6 +79,7 @@ class RamayanCategory {
       hi: 'मुख्य स्थल',
       en: 'Key Places',
       icon: Icons.explore_rounded,
+      imageAsset: 'assets/images/places.png',
     ),
     RamayanCategory(
       id: 'temples',
@@ -79,6 +87,7 @@ class RamayanCategory {
       hi: 'मंदिर',
       en: 'Temples',
       icon: Icons.account_balance_rounded,
+      imageAsset: 'assets/images/temples.png',
     ),
     RamayanCategory(
       id: 'divya_astro',
@@ -86,6 +95,7 @@ class RamayanCategory {
       hi: 'दिव्य अस्त्र',
       en: 'Divine Weapons',
       icon: Icons.auto_awesome_rounded,
+      imageAsset: 'assets/images/divine_weapons.png',
     ),
   ];
 

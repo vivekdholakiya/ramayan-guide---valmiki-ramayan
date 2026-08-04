@@ -33,6 +33,12 @@ class NavigationShell extends ConsumerWidget {
         selectedIcon: const Icon(Icons.grid_view_rounded),
         label: AppStrings.get('nav_categories', language.code),
       ),
+      // Status tab — new addition
+      NavigationDestination(
+        icon: const Icon(Icons.auto_awesome_outlined),
+        selectedIcon: const Icon(Icons.auto_awesome_rounded),
+        label: AppStrings.get('nav_status', language.code),
+      ),
       NavigationDestination(
         icon: const Icon(Icons.bookmark_outline_rounded),
         selectedIcon: const Icon(Icons.bookmark_rounded),
