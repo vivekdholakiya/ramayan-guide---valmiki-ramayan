@@ -1,0 +1,3 @@
+String formatDescription(String text) {
+  return text.replaceAll(r'/n/n', '\n\n').replaceAll(r'/n', '\n').trim();
+}

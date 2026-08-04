@@ -57,11 +57,12 @@ class HeroBanner extends StatelessWidget {
         children: [
           // Background soft radial gold glow
           Positioned(
-            right: -30,
-            bottom: -30,
+            right: -40,
+            bottom: -40,
+            top: -40,
             child: Container(
-              width: isDesktop ? 240 : 140,
-              height: isDesktop ? 240 : 140,
+              width: isDesktop ? 250 : 150,
+              height: isDesktop ? 250 : 150,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: AppColors.warmGold.withValues(alpha: isDark ? 0.15 : 0.25),

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_strings.dart';
 import '../constants/app_typography.dart';
+import '../constants/util.dart';
 import '../models/app_settings.dart';
 import '../models/ramayan_category.dart';
 import '../models/ramayan_item.dart';
@@ -180,7 +183,7 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: SelectableText(
-                      widget.item.description,
+                      formatDescription(widget.item.description),
                       textAlign: TextAlign.justify,
                       style: AppTypography.getStyle(
                         languageCode: language.code,
@@ -191,7 +194,7 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
                             : AppColors.textDarkBrown,
                         height: fontSizeOption.lineHeight,
                       ),
-                    ),
+                    )
                   ),
                   // const SizedBox(height: 24),
                   const MandalaDivider(),
@@ -204,4 +207,6 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
       ),
     );
   }
+
+
 }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_strings.dart';
 import '../constants/app_typography.dart';
+import '../constants/util.dart';
 import '../models/ramayan_item.dart';
 import '../providers/favorites_provider.dart';
 
@@ -112,7 +113,7 @@ class _RamayanItemCardState extends ConsumerState<RamayanItemCard> {
                   ),
                   const SizedBox(height: 8.0),
                   Text(
-                    previewText,
+                    formatDescription(previewText),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.getStyle(

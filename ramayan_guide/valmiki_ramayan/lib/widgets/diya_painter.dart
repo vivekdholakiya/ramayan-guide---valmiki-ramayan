@@ -91,7 +91,9 @@ class DiyaWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return
+      
+      SizedBox(
       width: size,
       height: size,
       child: CustomPaint(
