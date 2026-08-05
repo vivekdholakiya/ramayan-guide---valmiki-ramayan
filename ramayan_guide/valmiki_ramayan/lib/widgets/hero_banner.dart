@@ -293,7 +293,7 @@ class _BannerImage extends StatelessWidget {
     if (imageUrl.isEmpty) return _fallback();
 
     return AspectRatio(
-      aspectRatio: 16 / 9,
+      aspectRatio: 16 / 4,
       child: Image.network(
         imageUrl,
         fit: BoxFit.cover,

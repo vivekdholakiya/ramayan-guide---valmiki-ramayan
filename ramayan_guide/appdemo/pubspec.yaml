@@ -13,6 +13,8 @@ dependencies:
   # Firebase
   firebase_core: ^3.6.0
   cloud_firestore: ^5.4.4
+  flutter_translate: ^4.1.0
+  simplytranslate: ^2.2.2
 
   # Real translation (Google Translate wrapper) - flutter_translation package
   # is only for static UI localization, NOT for translating dynamic content,

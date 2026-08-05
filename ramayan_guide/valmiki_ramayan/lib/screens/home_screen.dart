@@ -100,7 +100,7 @@ class CategoriesListScreen extends ConsumerWidget {
             itemCount: RamayanCategory.categories.length,
             itemBuilder: (context, index) {
               final category = RamayanCategory.categories[index];
-              final height = (index % 2 == 0) ? 155.0 : 185.0;
+              final height =  185.0;
               return CategoryCard(
                 category: category,
                 languageCode: language.code,

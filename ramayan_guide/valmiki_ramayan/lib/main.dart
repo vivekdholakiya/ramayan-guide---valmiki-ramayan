@@ -13,7 +13,6 @@ import 'theme/app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase safely
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
