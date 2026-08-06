@@ -17,6 +17,10 @@ class FavoritesNotifier extends StateNotifier<List<RamayanItem>> {
   bool isFavorite(String itemId, String categoryId) {
     return state.any((item) => item.id == itemId && item.category == categoryId);
   }
+
+  void clear() {
+    state = [];
+  }
 }
 
 final favoritesProvider =

@@ -121,4 +121,11 @@ class LocalStorageService {
   Future<void> setContinueReading(RamayanItem item) async {
     await _prefs.setString(_keyContinueReading, json.encode(item.toJson()));
   }
+
+  // --- Clear Content Data on Language Change ---
+  Future<void> clearUserContentData() async {
+    await _prefs.remove(_keyFavorites);
+    await _prefs.remove(_keyRecent);
+    await _prefs.remove(_keyContinueReading);
+  }
 }

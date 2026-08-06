@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
+import '../services/context_extensions.dart';
 
 /// DiyaPainter renders a divine decorative Diya (lamp flame) symbol.
 class DiyaPainter extends CustomPainter {
@@ -12,7 +13,6 @@ class DiyaPainter extends CustomPainter {
     final width = size.width;
     final height = size.height;
 
-    // Paint Diya base (bowl)
     final bowlPaint = Paint()
       ..color = AppColors.warmGold
       ..style = PaintingStyle.fill;
@@ -40,7 +40,6 @@ class DiyaPainter extends CustomPainter {
 
     canvas.drawPath(bowlPath, bowlPaint);
 
-    // Paint Diya Flame
     final flamePaint = Paint()
       ..shader = RadialGradient(
         colors: [
@@ -91,11 +90,11 @@ class DiyaWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return
-      
-      SizedBox(
-      width: size,
-      height: size,
+    final responsiveSizeValue = context.responsiveSize(size);
+
+    return SizedBox(
+      width: responsiveSizeValue,
+      height: responsiveSizeValue,
       child: CustomPaint(
         painter: DiyaPainter(color: color),
       ),
@@ -110,12 +109,12 @@ class SacredDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      padding: EdgeInsets.symmetric(vertical: context.responsiveSize(16.0)),
       child: Row(
         children: [
           Expanded(
             child: Container(
-              height: 1,
+              height: context.responsiveSize(1),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -126,13 +125,13 @@ class SacredDivider extends StatelessWidget {
               ),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12.0),
-            child: DiyaWidget(size: 20),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: context.responsiveSize(12.0)),
+            child: DiyaWidget(size: context.responsiveSize(20)),
           ),
           Expanded(
             child: Container(
-              height: 1,
+              height: context.responsiveSize(1),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [

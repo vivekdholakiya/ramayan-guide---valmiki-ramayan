@@ -6,6 +6,7 @@ import '../constants/app_typography.dart';
 import '../models/app_settings.dart';
 import '../providers/language_provider.dart';
 import '../providers/theme_provider.dart';
+import '../services/context_extensions.dart';
 import 'diya_painter.dart';
 
 class WebDesktopNavBar extends ConsumerWidget implements PreferredSizeWidget {
@@ -29,26 +30,26 @@ class WebDesktopNavBar extends ConsumerWidget implements PreferredSizeWidget {
     final navItems = [
       AppStrings.get('nav_home', language.code),
       AppStrings.get('nav_categories', language.code),
-      AppStrings.get('nav_status', language.code),   // index 2 — new
+      AppStrings.get('nav_status', language.code),
       AppStrings.get('nav_favorites', language.code),
       AppStrings.get('nav_settings', language.code),
     ];
 
     return Container(
-      height: 68.0,
+      height: context.responsiveSize(68.0),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.parchmentCard,
         border: Border(
           bottom: BorderSide(
             color: AppColors.warmGold.withValues(alpha: isDark ? 0.3 : 0.4),
-            width: 1.0,
+            width: context.responsiveSize(1.0),
           ),
         ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+            blurRadius: context.responsiveSize(10),
+            offset: Offset(0, context.responsiveSize(2)),
           ),
         ],
       ),
@@ -56,22 +57,21 @@ class WebDesktopNavBar extends ConsumerWidget implements PreferredSizeWidget {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1300),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            padding: EdgeInsets.symmetric(horizontal: context.responsiveSize(24.0)),
             child: Row(
               children: [
-                // App Brand Logo & Title
                 InkWell(
                   onTap: () => onDestinationSelected(0),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(context.responsiveSize(12)),
                   child: Row(
                     children: [
-                      const DiyaWidget(size: 32),
-                      const SizedBox(width: 12),
+                      DiyaWidget(size: context.responsiveSize(32)),
+                      SizedBox(width: context.responsiveSize(12)),
                       Text(
                         AppStrings.get('app_title', language.code),
                         style: AppTypography.getStyle(
                           languageCode: language.code,
-                          fontSize: 20,
+                          fontSize: context.responsiveFontSize(20),
                           fontWeight: FontWeight.bold,
                           color: isDark
                               ? AppColors.textLightIvory
@@ -82,32 +82,30 @@ class WebDesktopNavBar extends ConsumerWidget implements PreferredSizeWidget {
                   ),
                 ),
                 const Spacer(),
-
-                // Desktop Navigation Links
                 Row(
                   children: List.generate(navItems.length, (index) {
                     final isSelected = index == selectedIndex;
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                      padding: EdgeInsets.symmetric(horizontal: context.responsiveSize(4.0)),
                       child: TextButton(
                         onPressed: () => onDestinationSelected(index),
                         style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 12.0,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: context.responsiveSize(16.0),
+                            vertical: context.responsiveSize(12.0),
                           ),
                           backgroundColor: isSelected
                               ? AppColors.deepSaffron.withValues(alpha: 0.15)
                               : Colors.transparent,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0),
+                            borderRadius: BorderRadius.circular(context.responsiveSize(12.0)),
                           ),
                         ),
                         child: Text(
                           navItems[index],
                           style: AppTypography.getStyle(
                             languageCode: language.code,
-                            fontSize: 15,
+                            fontSize: context.responsiveFontSize(15),
                             fontWeight:
                                 isSelected ? FontWeight.bold : FontWeight.w500,
                             color: isSelected
@@ -121,12 +119,12 @@ class WebDesktopNavBar extends ConsumerWidget implements PreferredSizeWidget {
                     );
                   }),
                 ),
-
-                const SizedBox(width: 16),
-
-                // Language Popover
+                SizedBox(width: context.responsiveSize(16)),
                 PopupMenuButton<AppLanguage>(
-                  icon: const Icon(Icons.language_rounded),
+                  icon: Icon(
+                    Icons.language_rounded,
+                    size: context.responsiveSize(24),
+                  ),
                   tooltip: AppStrings.get('settings_language', language.code),
                   onSelected: (selectedLang) {
                     ref.read(languageProvider.notifier).setLanguage(selectedLang);
@@ -138,22 +136,29 @@ class WebDesktopNavBar extends ConsumerWidget implements PreferredSizeWidget {
                       child: Row(
                         children: [
                           if (isSelected)
-                            const Icon(Icons.check_rounded,
-                                color: AppColors.deepSaffron, size: 18)
+                            Icon(
+                              Icons.check_rounded,
+                              color: AppColors.deepSaffron,
+                              size: context.responsiveSize(18),
+                            )
                           else
-                            const SizedBox(width: 18),
-                          const SizedBox(width: 8),
-                          Text(lang.label),
+                            SizedBox(width: context.responsiveSize(18)),
+                          SizedBox(width: context.responsiveSize(8)),
+                          Text(
+                            lang.label,
+                            style: TextStyle(
+                              fontSize: context.responsiveFontSize(14),
+                            ),
+                          ),
                         ],
                       ),
                     );
                   }).toList(),
                 ),
-
-                // Theme Mode Switcher Shortcut
                 IconButton(
                   icon: Icon(
                     isDark ? Icons.wb_sunny_rounded : Icons.nightlight_round,
+                    size: context.responsiveSize(24),
                     color: isDark ? AppColors.warmGold : AppColors.deepSaffron,
                   ),
                   tooltip: AppStrings.get('settings_theme', language.code),

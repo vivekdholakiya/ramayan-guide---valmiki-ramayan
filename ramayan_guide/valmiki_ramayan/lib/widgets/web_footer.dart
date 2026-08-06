@@ -4,6 +4,7 @@ import '../constants/app_colors.dart';
 import '../constants/app_strings.dart';
 import '../constants/app_typography.dart';
 import '../providers/language_provider.dart';
+import '../services/context_extensions.dart';
 import 'diya_painter.dart';
 
 class WebFooter extends ConsumerWidget {
@@ -18,13 +19,16 @@ class WebFooter extends ConsumerWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 36.0, horizontal: 24.0),
+      padding: EdgeInsets.symmetric(
+        vertical: context.responsiveSize(36.0),
+        horizontal: context.responsiveSize(24.0),
+      ),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.parchmentCard,
         border: Border(
           top: BorderSide(
             color: AppColors.warmGold.withValues(alpha: isDark ? 0.3 : 0.4),
-            width: 1.0,
+            width: context.responsiveSize(1.0),
           ),
         ),
       ),
@@ -33,31 +37,31 @@ class WebFooter extends ConsumerWidget {
           constraints: const BoxConstraints(maxWidth: 1200),
           child: Column(
             children: [
-              const DiyaWidget(size: 32),
-              const SizedBox(height: 12),
+              DiyaWidget(size: context.responsiveSize(32)),
+              SizedBox(height: context.responsiveSize(12)),
               Text(
                 AppStrings.get('app_title', language.code),
                 style: AppTypography.getStyle(
                   languageCode: language.code,
-                  fontSize: 20,
+                  fontSize: context.responsiveFontSize(20),
                   fontWeight: FontWeight.bold,
                   color: isDark ? AppColors.textLightIvory : AppColors.textDarkBrown,
                 ),
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: context.responsiveSize(6)),
               Text(
                 'Ancient wisdom, beautifully presented.',
                 style: AppTypography.getStyle(
                   languageCode: language.code,
-                  fontSize: 13,
+                  fontSize: context.responsiveFontSize(13),
                   color: isDark ? AppColors.textMutedIvory : AppColors.textMutedBrown,
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: context.responsiveSize(20)),
               if (onNavigate != null)
                 Wrap(
                   alignment: WrapAlignment.center,
-                  spacing: 24,
+                  spacing: context.responsiveSize(24),
                   children: [
                     _footerLink(
                       context,
@@ -85,12 +89,12 @@ class WebFooter extends ConsumerWidget {
                     ),
                   ],
                 ),
-              const SizedBox(height: 20),
+              SizedBox(height: context.responsiveSize(20)),
               Text(
                 '© ${DateTime.now().year} Valmiki Ramayan. All rights reserved.',
                 style: AppTypography.getStyle(
                   languageCode: language.code,
-                  fontSize: 12,
+                  fontSize: context.responsiveFontSize(12),
                   color: isDark ? AppColors.textMutedIvory : AppColors.textMutedBrown,
                 ),
               ),
@@ -114,7 +118,7 @@ class WebFooter extends ConsumerWidget {
         label,
         style: AppTypography.getStyle(
           languageCode: languageCode,
-          fontSize: 13,
+          fontSize: context.responsiveFontSize(13),
           fontWeight: FontWeight.w600,
           color: isDark ? AppColors.textLightIvory : AppColors.textDarkBrown,
         ),

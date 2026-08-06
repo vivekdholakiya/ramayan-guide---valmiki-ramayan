@@ -1,19 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_typography.dart';
 import '../models/status_item.dart';
+import '../providers/offline_provider.dart';
+import '../services/context_extensions.dart';
 
 /// StatusCard renders a premium 9:16 devotional quote card.
-///
-/// Displays:
-///  - Full background image (BoxFit.cover)
-///  - Dark gradient overlay at the bottom for readability
-///  - Gujarati quote text (auto-sized by length, centered)
-///  - Decorative golden divider
-///  - Subtle attribution line ("॥ શ્રી રામ ॥")
-///
-/// Designed to match the existing app's spiritual aesthetic using
-/// AppColors and AppTypography conventions.
 class StatusCard extends StatelessWidget {
   final StatusItem item;
   final VoidCallback? onTap;
@@ -33,18 +26,18 @@ class StatusCard extends StatelessWidget {
       child: Container(
         decoration: showShadow
             ? BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(context.responsiveSize(20)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.3),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
+                    blurRadius: context.responsiveSize(20),
+                    offset: Offset(0, context.responsiveSize(8)),
                   ),
                 ],
               )
             : null,
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(context.responsiveSize(20)),
           child: AspectRatio(
             aspectRatio: 9 / 16,
             child: Stack(
@@ -54,7 +47,6 @@ class StatusCard extends StatelessWidget {
                 _BackgroundImage(imageUrl: item.imageUrl),
 
                 // ── Gradient Overlays ────────────────────────────────────
-                // Top vignette (subtle, keeps top area usable)
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -67,7 +59,6 @@ class StatusCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Full-card radial overlay — darkens center for readability
                 Container(
                   decoration: BoxDecoration(
                     gradient: RadialGradient(
@@ -87,15 +78,14 @@ class StatusCard extends StatelessWidget {
                 Positioned.fill(
                   child: Center(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 60),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: context.responsiveSize(24),
+                        vertical: context.responsiveSize(60),
+                      ),
                       child: _QuoteContent(item: item),
                     ),
                   ),
                 ),
-
-                // ── Top decorative badge ─────────────────────────────────
-
               ],
             ),
           ),
@@ -107,29 +97,48 @@ class StatusCard extends StatelessWidget {
 
 // ── Private sub-widgets ───────────────────────────────────────────────────
 
-class _BackgroundImage extends StatelessWidget {
+class _BackgroundImage extends ConsumerWidget {
   final String imageUrl;
 
   const _BackgroundImage({required this.imageUrl});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     if (imageUrl.isEmpty) {
-      return _buildFallback();
+      return _buildFallback(context);
     }
 
+    final localFileAsync = ref.watch(localImageFileProvider(imageUrl));
+
+    return localFileAsync.when(
+      data: (file) {
+        if (file != null && file.existsSync()) {
+          return Image.file(
+            file,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => _buildNetworkImage(context),
+          );
+        }
+        return _buildNetworkImage(context);
+      },
+      loading: () => _buildNetworkImage(context),
+      error: (error, stackTrace) => _buildNetworkImage(context),
+    );
+  }
+
+  Widget _buildNetworkImage(BuildContext context) {
     return Image.network(
       imageUrl,
       fit: BoxFit.cover,
       loadingBuilder: (context, child, loadingProgress) {
         if (loadingProgress == null) return child;
-        return _buildLoadingPlaceholder();
+        return _buildLoadingPlaceholder(context);
       },
-      errorBuilder: (context, error, stackTrace) => _buildFallback(),
+      errorBuilder: (context, error, stackTrace) => _buildFallback(context),
     );
   }
 
-  Widget _buildLoadingPlaceholder() {
+  Widget _buildLoadingPlaceholder(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -141,16 +150,16 @@ class _BackgroundImage extends StatelessWidget {
           ],
         ),
       ),
-      child: const Center(
+      child: Center(
         child: CircularProgressIndicator(
           color: AppColors.warmGold,
-          strokeWidth: 2,
+          strokeWidth: context.responsiveSize(2),
         ),
       ),
     );
   }
 
-  Widget _buildFallback() {
+  Widget _buildFallback(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -170,7 +179,7 @@ class _BackgroundImage extends StatelessWidget {
           Center(
             child: Icon(
               Icons.auto_awesome_rounded,
-              size: 80,
+              size: context.responsiveSize(80),
               color: AppColors.warmGold.withValues(alpha: 0.15),
             ),
           ),
@@ -187,13 +196,16 @@ class _TopBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.responsiveSize(16),
+          vertical: context.responsiveSize(6),
+        ),
         decoration: BoxDecoration(
           color: Colors.black.withValues(alpha: 0.35),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(context.responsiveSize(20)),
           border: Border.all(
             color: AppColors.warmGold.withValues(alpha: 0.5),
-            width: 0.8,
+            width: context.responsiveSize(0.8),
           ),
         ),
         child: Row(
@@ -201,24 +213,24 @@ class _TopBadge extends StatelessWidget {
           children: [
             Icon(
               Icons.spa_rounded,
-              size: 12,
+              size: context.responsiveSize(12),
               color: AppColors.warmGold.withValues(alpha: 0.9),
             ),
-            const SizedBox(width: 6),
+            SizedBox(width: context.responsiveSize(6)),
             Text(
               'VD\'S Valmiki Ramayan App',
               style: AppTypography.getStyle(
                 languageCode: 'en',
-                fontSize: 11,
+                fontSize: context.responsiveFontSize(11),
                 fontWeight: FontWeight.w600,
                 color: AppColors.warmGold.withValues(alpha: 0.9),
                 height: 1.2,
               ),
             ),
-            const SizedBox(width: 6),
+            SizedBox(width: context.responsiveSize(6)),
             Icon(
               Icons.spa_rounded,
-              size: 12,
+              size: context.responsiveSize(12),
               color: AppColors.warmGold.withValues(alpha: 0.9),
             ),
           ],
@@ -238,65 +250,59 @@ class _QuoteContent extends StatelessWidget {
     final quoteText = item.quote.text;
     final charCount = quoteText.length;
 
-    // Adaptive font size based on quote length
     double fontSize;
     if (charCount < 60) {
-      fontSize = 22;
+      fontSize = context.responsiveFontSize(22);
     } else if (charCount < 100) {
-      fontSize = 19;
+      fontSize = context.responsiveFontSize(19);
     } else if (charCount < 150) {
-      fontSize = 17;
+      fontSize = context.responsiveFontSize(17);
     } else {
-      fontSize = 15;
+      fontSize = context.responsiveFontSize(15);
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
-        children: [
-          // ── Decorative top ornament ──────────────────────────────────
-          _GoldenOrnament(),
+      children: [
+        _GoldenOrnament(),
 
-          const SizedBox(height: 12),
+        SizedBox(height: context.responsiveSize(12)),
 
-          // ── Quote text ───────────────────────────────────────────────
-          Text(
-            '❝  $quoteText  ❞',
-            textAlign: TextAlign.center,
-            style: AppTypography.getStyle(
-              languageCode: 'gu',
-              fontSize: fontSize,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFFFFF8E8), // warm ivory
-              height: 1.65,
-            ).copyWith(
-              shadows: [
-                Shadow(
-                  color: Colors.black.withValues(alpha: 0.8),
-                  blurRadius: 12,
-                  offset: const Offset(0, 2),
-                ),
-                Shadow(
-                  color: Colors.black.withValues(alpha: 0.5),
-                  blurRadius: 6,
-                ),
-              ],
-            ),
-            maxLines: 8,
-            overflow: TextOverflow.ellipsis,
+        Text(
+          '❝  $quoteText  ❞',
+          textAlign: TextAlign.center,
+          style: AppTypography.getStyle(
+            languageCode: 'gu',
+            fontSize: fontSize,
+            fontWeight: FontWeight.w600,
+            color: const Color(0xFFFFF8E8),
+            height: 1.65,
+          ).copyWith(
+            shadows: [
+              Shadow(
+                color: Colors.black.withValues(alpha: 0.8),
+                blurRadius: context.responsiveSize(12),
+                offset: Offset(0, context.responsiveSize(2)),
+              ),
+              Shadow(
+                color: Colors.black.withValues(alpha: 0.5),
+                blurRadius: context.responsiveSize(6),
+              ),
+            ],
           ),
+          maxLines: 8,
+          overflow: TextOverflow.ellipsis,
+        ),
 
-          const SizedBox(height: 14),
+        SizedBox(height: context.responsiveSize(14)),
 
-          // ── Decorative divider ───────────────────────────────────────
-          _GoldenDivider(),
+        _GoldenDivider(),
 
-          const SizedBox(height: 14),
+        SizedBox(height: context.responsiveSize(14)),
 
-          _TopBadge(),
-
-
-        ],
+        const _TopBadge(),
+      ],
     );
   }
 }
@@ -308,8 +314,8 @@ class _GoldenOrnament extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          width: 32,
-          height: 1,
+          width: context.responsiveSize(32),
+          height: context.responsiveSize(1),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
@@ -319,31 +325,31 @@ class _GoldenOrnament extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: context.responsiveSize(8)),
         Icon(
           Icons.brightness_7_rounded,
-          size: 14,
+          size: context.responsiveSize(14),
           color: AppColors.warmGold.withValues(alpha: 0.9),
         ),
-        const SizedBox(width: 6),
+        SizedBox(width: context.responsiveSize(6)),
         Text(
           '॥',
           style: TextStyle(
             color: AppColors.warmGold.withValues(alpha: 0.9),
-            fontSize: 16,
+            fontSize: context.responsiveFontSize(16),
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(width: 6),
+        SizedBox(width: context.responsiveSize(6)),
         Icon(
           Icons.brightness_7_rounded,
-          size: 14,
+          size: context.responsiveSize(14),
           color: AppColors.warmGold.withValues(alpha: 0.9),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: context.responsiveSize(8)),
         Container(
-          width: 32,
-          height: 1,
+          width: context.responsiveSize(32),
+          height: context.responsiveSize(1),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
@@ -365,7 +371,7 @@ class _GoldenDivider extends StatelessWidget {
       children: [
         Expanded(
           child: Container(
-            height: 0.8,
+            height: context.responsiveSize(0.8),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -377,16 +383,16 @@ class _GoldenDivider extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: EdgeInsets.symmetric(horizontal: context.responsiveSize(8)),
           child: Icon(
             Icons.spa_rounded,
-            size: 12,
+            size: context.responsiveSize(12),
             color: AppColors.warmGold.withValues(alpha: 0.7),
           ),
         ),
         Expanded(
           child: Container(
-            height: 0.8,
+            height: context.responsiveSize(0.8),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -401,4 +407,3 @@ class _GoldenDivider extends StatelessWidget {
     );
   }
 }
-

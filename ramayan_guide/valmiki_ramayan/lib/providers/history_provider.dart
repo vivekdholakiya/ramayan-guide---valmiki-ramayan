@@ -15,6 +15,10 @@ class HistoryNotifier extends StateNotifier<List<RamayanItem>> {
     state = storage.getRecentlyViewed();
     _ref.read(continueReadingProvider.notifier).refresh();
   }
+
+  void clear() {
+    state = [];
+  }
 }
 
 final historyProvider =
@@ -30,6 +34,10 @@ class ContinueReadingNotifier extends StateNotifier<RamayanItem?> {
 
   void refresh() {
     state = _ref.read(localStorageServiceProvider).getContinueReading();
+  }
+
+  void clear() {
+    state = null;
   }
 }
 

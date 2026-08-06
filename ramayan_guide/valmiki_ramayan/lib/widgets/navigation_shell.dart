@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../constants/app_colors.dart';
 import '../constants/app_strings.dart';
 import '../providers/language_provider.dart';
+import '../services/context_extensions.dart';
 import 'web_nav_bar.dart';
 
 class NavigationShell extends ConsumerWidget {
@@ -21,6 +23,7 @@ class NavigationShell extends ConsumerWidget {
     final language = ref.watch(languageProvider);
     final width = MediaQuery.of(context).size.width;
     final isDesktop = width >= 1024;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final destinations = [
       NavigationDestination(
@@ -63,10 +66,53 @@ class NavigationShell extends ConsumerWidget {
 
     return Scaffold(
       body: child,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: selectedIndex,
-        onDestinationSelected: onDestinationSelected,
-        destinations: destinations,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: isDark
+              ? AppColors.darkCard
+              : AppColors.parchmentCard,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(20),
+            bottom: Radius.circular(0),
+          ),
+          border: Border(top: BorderSide(color: isDark
+              ? AppColors.darkBorder
+              : AppColors.parchmentBorder,),
+            right: BorderSide(color: isDark
+                ? AppColors.darkBorder
+                : AppColors.parchmentBorder,),
+            left: BorderSide(color: isDark
+                ? AppColors.darkBorder
+                : AppColors.parchmentBorder,),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 16,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(20),
+            bottom: Radius.circular(0),
+          ),
+          child: NavigationBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            height: 72,
+            selectedIndex: selectedIndex,
+            onDestinationSelected: onDestinationSelected,
+            labelBehavior:
+            NavigationDestinationLabelBehavior.alwaysShow,
+            indicatorColor: Theme.of(context)
+                .colorScheme
+                .primary
+                .withOpacity(0.15),
+            destinations: destinations,
+          ),
+        ),
       ),
     );
   }

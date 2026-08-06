@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_strings.dart';
 import '../constants/app_typography.dart';
+import '../services/context_extensions.dart';
 
 class FastSearchBar extends StatefulWidget {
   final String languageCode;
@@ -43,50 +44,70 @@ class _FastSearchBarState extends State<FastSearchBar> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      margin: EdgeInsets.symmetric(
+        horizontal: context.responsiveSize(16.0),
+        vertical: context.responsiveSize(8.0),
+      ),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.parchmentCard,
-        borderRadius: BorderRadius.circular(16.0),
+        borderRadius: BorderRadius.circular(context.responsiveSize(16.0)),
         border: Border.all(
           color: AppColors.warmGold.withValues(alpha: isDark ? 0.3 : 0.4),
-          width: 1.0,
+          width: context.responsiveSize(1.0),
         ),
       ),
       child: TextField(
         controller: _controller,
-        onChanged: widget.onChanged,
+        onChanged: (val) {
+          widget.onChanged(val);
+          setState(() {});
+        },
         style: AppTypography.getStyle(
           languageCode: widget.languageCode,
-          fontSize: 15.0,
+          fontSize: context.responsiveFontSize(15.0),
           color: isDark ? AppColors.textLightIvory : AppColors.textDarkBrown,
         ),
         decoration: InputDecoration(
           border: InputBorder.none,
-          prefixIcon: const Icon(
+          prefixIcon: Icon(
             Icons.search_rounded,
+            size: context.responsiveSize(24.0),
             color: AppColors.deepSaffron,
           ),
-          suffixIcon: _controller.text.isNotEmpty
-              ? IconButton(
-                  icon: const Icon(Icons.clear_rounded, size: 20),
-                  color: AppColors.textMutedBrown,
-                  onPressed: () {
-                    _controller.clear();
-                    widget.onChanged('');
-                    if (widget.onClear != null) widget.onClear!();
-                    setState(() {});
-                  },
-                )
-              : null,
+          suffixIcon: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 180),
+            transitionBuilder: (child, anim) => ScaleTransition(
+              scale: anim,
+              child: FadeTransition(opacity: anim, child: child),
+            ),
+            child: _controller.text.isNotEmpty
+                ? IconButton(
+                    key: const ValueKey('clear_btn'),
+                    icon: Icon(
+                      Icons.clear_rounded,
+                      size: context.responsiveSize(20),
+                    ),
+                    color: AppColors.textMutedBrown,
+                    onPressed: () {
+                      _controller.clear();
+                      widget.onChanged('');
+                      if (widget.onClear != null) widget.onClear!();
+                      setState(() {});
+                    },
+                  )
+                : const SizedBox.shrink(key: ValueKey('empty_suffix')),
+          ),
           hintText: widget.hintText.isNotEmpty
               ? widget.hintText
               : AppStrings.get('search_placeholder', widget.languageCode),
           hintStyle: AppTypography.getStyle(
             languageCode: widget.languageCode,
-            fontSize: 14.0,
+            fontSize: context.responsiveFontSize(14.0),
             color: isDark ? AppColors.textMutedIvory : AppColors.textMutedBrown,
           ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 14.0),
+          contentPadding: EdgeInsets.symmetric(
+            vertical: context.responsiveSize(14.0),
+          ),
         ),
       ),
     );

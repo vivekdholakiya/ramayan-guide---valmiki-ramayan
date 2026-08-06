@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_strings.dart';
 import '../constants/app_typography.dart';
@@ -7,7 +8,8 @@ import '../models/ramayan_category.dart';
 import '../providers/favorites_provider.dart';
 import '../providers/history_provider.dart';
 import '../providers/language_provider.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import '../services/context_extensions.dart';
+import '../widgets/animated_interactions.dart';
 import '../widgets/category_card.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/hero_banner.dart';
@@ -44,9 +46,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     final pages = [
       HomeScreen(onNavigate: _onDestinationSelected),
       const CategoriesListScreen(),
-      const StatusScreen(),        // index 2 — new
-      const FavoritesScreen(),     // index 3 (was 2)
-      const SettingsScreen(),      // index 4 (was 3)
+      const StatusScreen(),
+      const FavoritesScreen(),
+      const SettingsScreen(),
     ];
 
     return NavigationShell(
@@ -79,11 +81,21 @@ class CategoriesListScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leading: Padding(
+          padding: EdgeInsets.only(left: context.responsiveSize(16.0)),
+          child: Center(
+            child: Icon(
+              Icons.grid_view_rounded,
+              color: AppColors.deepSaffron,
+              size: context.responsiveSize(26),
+            ),
+          ),
+        ),
         title: Text(
           AppStrings.get('nav_categories', language.code),
           style: AppTypography.getStyle(
             languageCode: language.code,
-            fontSize: 20,
+            fontSize: context.responsiveFontSize(20),
             fontWeight: FontWeight.bold,
             color: isDark ? AppColors.textLightIvory : AppColors.textDarkBrown,
           ),
@@ -93,25 +105,28 @@ class CategoriesListScreen extends ConsumerWidget {
         child: ResponsiveContainer(
           maxWidth: 1280.0,
           child: MasonryGridView.count(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(context.responsiveSize(16.0)),
             crossAxisCount: crossAxisCount,
-            mainAxisSpacing: 16.0,
-            crossAxisSpacing: 16.0,
+            mainAxisSpacing: context.responsiveSize(16.0),
+            crossAxisSpacing: context.responsiveSize(16.0),
             itemCount: RamayanCategory.categories.length,
             itemBuilder: (context, index) {
               final category = RamayanCategory.categories[index];
-              final height =  185.0;
-              return CategoryCard(
-                category: category,
-                languageCode: language.code,
-                height: height,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => CategoryScreen(category: category),
-                    ),
-                  );
-                },
+              final height = context.responsiveSize(190.0);
+              return StaggeredEntrance(
+                index: index,
+                child: CategoryCard(
+                  category: category,
+                  languageCode: language.code,
+                  height: height,
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => CategoryScreen(category: category),
+                      ),
+                    );
+                  },
+                ),
               );
             },
           ),
@@ -156,7 +171,7 @@ class HomeScreen extends ConsumerWidget {
             ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.only(bottom: 0.0),
+          padding: EdgeInsets.only(bottom: context.responsiveSize(0.0)),
           child: Column(
             children: [
               ResponsiveContainer(
@@ -165,33 +180,44 @@ class HomeScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // 1. Divine Hero Banner
-                    HeroBanner(languageCode: language.code),
+                    StaggeredEntrance(
+                      index: 0,
+                      child: HeroBanner(languageCode: language.code),
+                    ),
 
                     // 2. Continue Reading Card (Only if active item exists)
                     if (continueReadingItem != null) ...[
-                      SpiritualSectionHeader(
-                        title: AppStrings.get('continue_reading', language.code),
-                        languageCode: language.code,
-                        icon: Icons.bookmark_added_rounded,
+                      StaggeredEntrance(
+                        index: 1,
+                        child: SpiritualSectionHeader(
+                          title: AppStrings.get('continue_reading', language.code),
+                          languageCode: language.code,
+                          icon: Icons.bookmark_added_rounded,
+                        ),
                       ),
-                      RamayanItemCard(
-                        item: continueReadingItem,
-                        languageCode: language.code,
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  ItemDetailScreen(item: continueReadingItem),
-                            ),
-                          );
-                        },
+                      StaggeredEntrance(
+                        index: 2,
+                        child: RamayanItemCard(
+                          item: continueReadingItem,
+                          languageCode: language.code,
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    ItemDetailScreen(item: continueReadingItem),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ],
 
                     // 3. Main Categories Grid Header
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 12.0),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: context.responsiveSize(16.0),
+                        vertical: context.responsiveSize(12.0),
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -200,44 +226,48 @@ class HomeScreen extends ConsumerWidget {
                                 'main_categories_header', language.code),
                             style: AppTypography.getStyle(
                               languageCode: language.code,
-                              fontSize: 18,
+                              fontSize: context.responsiveFontSize(18),
                               fontWeight: FontWeight.bold,
                               color: isDark
                                   ? AppColors.textLightIvory
                                   : AppColors.textDarkBrown,
                             ),
                           ),
-                          // const DiyaWidget(size: 20),
                         ],
                       ),
                     ),
 
                     // 4. Main 8 Categories Grid (Staggered Grid View)
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: context.responsiveSize(16.0),
+                      ),
                       child: StaggeredGrid.count(
                         crossAxisCount: categoryCrossAxisCount,
-                        mainAxisSpacing: 14.0,
-                        crossAxisSpacing: 14.0,
+                        mainAxisSpacing: context.responsiveSize(14.0),
+                        crossAxisSpacing: context.responsiveSize(14.0),
                         children: RamayanCategory.categories
                             .asMap()
                             .entries
                             .map((entry) {
                           final index = entry.key;
                           final category = entry.value;
-                          final height =  175.0;
-                          return CategoryCard(
-                            category: category,
-                            languageCode: language.code,
-                            height: height,
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      CategoryScreen(category: category),
-                                ),
-                              );
-                            },
+                          final height = context.responsiveSize(190.0);
+                          return StaggeredEntrance(
+                            index: index,
+                            child: CategoryCard(
+                              category: category,
+                              languageCode: language.code,
+                              height: height,
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        CategoryScreen(category: category),
+                                  ),
+                                );
+                              },
+                            ),
                           );
                         }).toList(),
                       ),
@@ -251,17 +281,22 @@ class HomeScreen extends ConsumerWidget {
                         languageCode: language.code,
                         icon: Icons.history_rounded,
                       ),
-                      ...recentlyViewed.take(3).map((item) {
-                        return RamayanItemCard(
-                          item: item,
-                          languageCode: language.code,
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => ItemDetailScreen(item: item),
-                              ),
-                            );
-                          },
+                      ...recentlyViewed.take(3).toList().asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final item = entry.value;
+                        return StaggeredEntrance(
+                          index: index,
+                          child: RamayanItemCard(
+                            item: item,
+                            languageCode: language.code,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => ItemDetailScreen(item: item),
+                                ),
+                              );
+                            },
+                          ),
                         );
                       }),
                     ],
@@ -275,22 +310,27 @@ class HomeScreen extends ConsumerWidget {
                         languageCode: language.code,
                         icon: Icons.bookmark_rounded,
                       ),
-                      ...favorites.take(3).map((item) {
-                        return RamayanItemCard(
-                          item: item,
-                          languageCode: language.code,
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => ItemDetailScreen(item: item),
-                              ),
-                            );
-                          },
+                      ...favorites.take(3).toList().asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final item = entry.value;
+                        return StaggeredEntrance(
+                          index: index,
+                          child: RamayanItemCard(
+                            item: item,
+                            languageCode: language.code,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => ItemDetailScreen(item: item),
+                                ),
+                              );
+                            },
+                          ),
                         );
                       }),
                     ],
 
-                    const SizedBox(height: 36),
+                    SizedBox(height: context.responsiveSize(36)),
                   ],
                 ),
               ),

@@ -10,23 +10,14 @@ import 'package:valmiki_ramayan/constants/util.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_strings.dart';
 import '../constants/app_typography.dart';
-
 import '../models/status_item.dart';
+import '../providers/offline_provider.dart';
 import '../providers/status_provider.dart';
 import '../screens/status_viewer_screen.dart';
+import '../services/context_extensions.dart';
 import '../widgets/status_card.dart';
 
 /// HeroBanner — Daily Quote ("આજનો વિચાર") section on the Home Screen.
-///
-/// Replaces the previous static HeroBanner with a dynamic Firebase-driven
-/// daily quote card using the same image/quote infrastructure as the Status section.
-///
-/// - Deterministic: same quote + image all day (dayIndex % length)
-/// - Detects date changes when widget is resumed
-/// - Tap: opens full-screen StatusViewerScreen
-/// - Share: renders & captures 9:16 StatusCard PNG → native share sheet
-/// - Loading: shimmer skeleton matching existing app style
-/// - Error/empty: friendly Gujarati fallback
 class HeroBanner extends ConsumerStatefulWidget {
   final String languageCode;
 
@@ -44,7 +35,6 @@ class _HeroBannerState extends ConsumerState<HeroBanner>
   final GlobalKey _repaintKey = GlobalKey();
   bool _isSharing = false;
 
-  // Track the last seen date to refresh on midnight
   late int _lastDayIndex;
 
   @override
@@ -60,14 +50,12 @@ class _HeroBannerState extends ConsumerState<HeroBanner>
     super.dispose();
   }
 
-  /// Called when app resumes from background — check if date has changed.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       final today = _dayIndex();
       if (today != _lastDayIndex) {
         _lastDayIndex = today;
-        // Invalidate provider to pick up new daily quote
         ref.invalidate(dailyQuoteProvider(widget.languageCode));
       }
     }
@@ -108,7 +96,7 @@ class _HeroBannerState extends ConsumerState<HeroBanner>
 
       await Share.shareXFiles(
         [XFile(file.path)],
-        text:appUrl
+        text: appUrl,
       );
     } catch (e) {
       debugPrint('[HeroBanner] Share error: $e');
@@ -139,7 +127,10 @@ class _HeroBannerState extends ConsumerState<HeroBanner>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      margin: EdgeInsets.symmetric(
+        horizontal: context.responsiveSize(16.0),
+        vertical: context.responsiveSize(12.0),
+      ),
       child: dailyAsync.when(
         data: (selection) {
           if (selection == null) {
@@ -162,8 +153,8 @@ class _HeroBannerState extends ConsumerState<HeroBanner>
                 left: -9999,
                 top: -9999,
                 child: SizedBox(
-                  width: 540,
-                  height: 960,
+                  width: context.responsiveSize(540),
+                  height: context.responsiveSize(960),
                   child: RepaintBoundary(
                     key: _repaintKey,
                     child: StatusCard(
@@ -221,61 +212,60 @@ class _DailyQuoteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(context.responsiveSize(24)),
       child: Stack(
-          children: [
-            // ── Background Image ─────────────────────────────────────────
-            _BannerImage(imageUrl: selection.imageUrl),
+        children: [
+          // ── Background Image ─────────────────────────────────────────
+          _BannerImage(imageUrl: selection.imageUrl),
 
-            // ── Dark overlay — top vignette ──────────────────────────────
-            Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: const Alignment(0, 0.2),
-                    colors: [
-                      Colors.black.withValues(alpha: 0.55),
-                      Colors.transparent,
-                    ],
-                  ),
+          // ── Dark overlay — top vignette ──────────────────────────────
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: const Alignment(0, 0.2),
+                  colors: [
+                    Colors.black.withValues(alpha: 0.55),
+                    Colors.transparent,
+                  ],
                 ),
               ),
             ),
+          ),
 
-            // ── Dark overlay — bottom half ───────────────────────────────
-            Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: const Alignment(0, 0.0),
-                    colors: [
-                      Colors.black.withValues(alpha: 0.90),
-                      Colors.black.withValues(alpha: 0.70),
-                      Colors.black.withValues(alpha: 0.30),
-                      Colors.transparent,
-                    ],
-                    stops: const [0.0, 0.25, 0.55, 1.0],
-                  ),
+          // ── Dark overlay — bottom half ───────────────────────────────
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: const Alignment(0, 0.0),
+                  colors: [
+                    Colors.black.withValues(alpha: 0.90),
+                    Colors.black.withValues(alpha: 0.70),
+                    Colors.black.withValues(alpha: 0.30),
+                    Colors.transparent,
+                  ],
+                  stops: const [0.0, 0.25, 0.55, 1.0],
                 ),
               ),
             ),
+          ),
 
-            // ── Quote content ────────────────────────────────────────────
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: _QuoteContent(
-                selection: selection,
-                languageCode: languageCode,
-                isSharing: isSharing,
-                onShare: onShare,
-              ),
+          // ── Quote content ────────────────────────────────────────────
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: _QuoteContent(
+              selection: selection,
+              languageCode: languageCode,
+              isSharing: isSharing,
+              onShare: onShare,
             ),
-
-          ],
+          ),
+        ],
       ),
     );
   }
@@ -283,31 +273,51 @@ class _DailyQuoteCard extends StatelessWidget {
 
 // ── Background image ──────────────────────────────────────────────────────
 
-class _BannerImage extends StatelessWidget {
+class _BannerImage extends ConsumerWidget {
   final String imageUrl;
 
   const _BannerImage({required this.imageUrl});
 
   @override
-  Widget build(BuildContext context) {
-    if (imageUrl.isEmpty) return _fallback();
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (imageUrl.isEmpty) return _fallback(context);
+
+    final localFileAsync = ref.watch(localImageFileProvider(imageUrl));
 
     return AspectRatio(
-      aspectRatio: 16 / 4,
-      child: Image.network(
-        imageUrl,
-        fit: BoxFit.cover,
-        width: double.infinity,
-        loadingBuilder: (_, child, progress) {
-          if (progress == null) return child;
-          return _fallback();
+      aspectRatio: 16 / 9,
+      child: localFileAsync.when(
+        data: (file) {
+          if (file != null && file.existsSync()) {
+            return Image.file(
+              file,
+              fit: BoxFit.cover,
+              width: double.infinity,
+              errorBuilder: (context, error, stackTrace) => _buildNetworkImage(context),
+            );
+          }
+          return _buildNetworkImage(context);
         },
-        errorBuilder: (_, _e, _st) => _fallback(),
+        loading: () => _buildNetworkImage(context),
+        error: (error, stackTrace) => _buildNetworkImage(context),
       ),
     );
   }
 
-  Widget _fallback() {
+  Widget _buildNetworkImage(BuildContext context) {
+    return Image.network(
+      imageUrl,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      loadingBuilder: (_, child, progress) {
+        if (progress == null) return child;
+        return _fallback(context);
+      },
+      errorBuilder: (context, error, stackTrace) => _fallback(context),
+    );
+  }
+
+  Widget _fallback(BuildContext context) {
     return AspectRatio(
       aspectRatio: 16 / 9,
       child: Container(
@@ -326,7 +336,7 @@ class _BannerImage extends StatelessWidget {
         child: Center(
           child: Icon(
             Icons.spa_rounded,
-            size: 56,
+            size: context.responsiveSize(56),
             color: AppColors.warmGold.withValues(alpha: 0.18),
           ),
         ),
@@ -356,30 +366,32 @@ class _QuoteContent extends StatelessWidget {
     final category = selection.quote.category;
     final charCount = text.length;
 
-    // Adaptive font — same logic as StatusCard
     double fontSize;
     if (charCount < 60) {
-      fontSize = 20;
+      fontSize = context.responsiveFontSize(20);
     } else if (charCount < 100) {
-      fontSize = 17;
+      fontSize = context.responsiveFontSize(17);
     } else if (charCount < 150) {
-      fontSize = 15;
+      fontSize = context.responsiveFontSize(15);
     } else {
-      fontSize = 13;
+      fontSize = context.responsiveFontSize(13);
     }
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+      padding: EdgeInsets.fromLTRB(
+        context.responsiveSize(20),
+        0,
+        context.responsiveSize(20),
+        context.responsiveSize(20),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // ── Golden ornament ──────────────────────────────────────────
           _GoldenRow(),
 
-          const SizedBox(height: 10),
+          SizedBox(height: context.responsiveSize(10)),
 
-          // ── Gujarati quote ───────────────────────────────────────────
           Text(
             '❝  $text  ❞',
             textAlign: TextAlign.center,
@@ -393,8 +405,8 @@ class _QuoteContent extends StatelessWidget {
               shadows: [
                 Shadow(
                   color: Colors.black.withValues(alpha: 0.85),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
+                  blurRadius: context.responsiveSize(10),
+                  offset: Offset(0, context.responsiveSize(2)),
                 ),
               ],
             ),
@@ -402,26 +414,23 @@ class _QuoteContent extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
 
-          const SizedBox(height: 12),
+          SizedBox(height: context.responsiveSize(12)),
 
-          // ── Divider ──────────────────────────────────────────────────
           _GoldenDivider(),
 
-          const SizedBox(height: 10),
+          SizedBox(height: context.responsiveSize(10)),
 
-          // ── Category + Share row ─────────────────────────────────────
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Category label
               if (category.isNotEmpty)
                 Flexible(
                   child: Text(
                     '- $category',
                     style: AppTypography.getStyle(
                       languageCode: languageCode,
-                      fontSize: 12,
+                      fontSize: context.responsiveFontSize(12),
                       fontWeight: FontWeight.w500,
                       color:
                           AppColors.warmGold.withValues(alpha: 0.80),
@@ -434,7 +443,6 @@ class _QuoteContent extends StatelessWidget {
               else
                 const SizedBox.shrink(),
 
-              // Share button
               _ShareButton(
                 isSharing: isSharing,
                 onTap: onShare,
@@ -467,18 +475,20 @@ class _ShareButton extends StatelessWidget {
       onTap: isSharing ? null : onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.responsiveSize(14),
+          vertical: context.responsiveSize(7),
+        ),
         decoration: BoxDecoration(
           color: isSharing
               ? AppColors.deepSaffron.withValues(alpha: 0.5)
               : AppColors.deepSaffron,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(context.responsiveSize(20)),
           boxShadow: [
             BoxShadow(
               color: AppColors.deepSaffron.withValues(alpha: 0.4),
-              blurRadius: 10,
-              offset: const Offset(0, 3),
+              blurRadius: context.responsiveSize(10),
+              offset: Offset(0, context.responsiveSize(3)),
             ),
           ],
         ),
@@ -489,15 +499,15 @@ class _ShareButton extends StatelessWidget {
               isSharing
                   ? Icons.hourglass_top_rounded
                   : Icons.share_rounded,
-              size: 14,
+              size: context.responsiveSize(14),
               color: Colors.white,
             ),
-            const SizedBox(width: 6),
+            SizedBox(width: context.responsiveSize(6)),
             Text(
               AppStrings.get('share', languageCode),
               style: AppTypography.getStyle(
                 languageCode: languageCode,
-                fontSize: 12,
+                fontSize: context.responsiveFontSize(12),
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
                 height: 1.2,
@@ -518,38 +528,38 @@ class _GoldenRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _fadeLine(toRight: false),
-        const SizedBox(width: 8),
+        _fadeLine(context: context, toRight: false),
+        SizedBox(width: context.responsiveSize(8)),
         Icon(
           Icons.brightness_7_rounded,
-          size: 13,
+          size: context.responsiveSize(13),
           color: AppColors.warmGold.withValues(alpha: 0.85),
         ),
-        const SizedBox(width: 5),
+        SizedBox(width: context.responsiveSize(5)),
         Text(
           '॥',
           style: TextStyle(
             color: AppColors.warmGold.withValues(alpha: 0.9),
-            fontSize: 15,
+            fontSize: context.responsiveFontSize(15),
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(width: 5),
+        SizedBox(width: context.responsiveSize(5)),
         Icon(
           Icons.brightness_7_rounded,
-          size: 13,
+          size: context.responsiveSize(13),
           color: AppColors.warmGold.withValues(alpha: 0.85),
         ),
-        const SizedBox(width: 8),
-        _fadeLine(toRight: true),
+        SizedBox(width: context.responsiveSize(8)),
+        _fadeLine(context: context, toRight: true),
       ],
     );
   }
 
-  Widget _fadeLine({required bool toRight}) {
+  Widget _fadeLine({required BuildContext context, required bool toRight}) {
     return Container(
-      width: 28,
-      height: 1,
+      width: context.responsiveSize(28),
+      height: context.responsiveSize(1),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: toRight
@@ -574,7 +584,7 @@ class _GoldenDivider extends StatelessWidget {
       children: [
         Expanded(
           child: Container(
-            height: 0.7,
+            height: context.responsiveSize(0.7),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -586,16 +596,16 @@ class _GoldenDivider extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: EdgeInsets.symmetric(horizontal: context.responsiveSize(8)),
           child: Icon(
             Icons.spa_rounded,
-            size: 11,
+            size: context.responsiveSize(11),
             color: AppColors.warmGold.withValues(alpha: 0.65),
           ),
         ),
         Expanded(
           child: Container(
-            height: 0.7,
+            height: context.responsiveSize(0.7),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -636,7 +646,7 @@ class _ShimmerBanner extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: baseColor,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(context.responsiveSize(24)),
           ),
         ),
       ),
@@ -665,7 +675,7 @@ class _EmptyBanner extends StatelessWidget {
       aspectRatio: 16 / 9,
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(context.responsiveSize(24)),
           gradient: LinearGradient(
             colors: isDark
                 ? [const Color(0xFF2E1A0C), const Color(0xFF1F1007)]
@@ -675,7 +685,7 @@ class _EmptyBanner extends StatelessWidget {
           ),
           border: Border.all(
             color: AppColors.warmGold.withValues(alpha: 0.35),
-            width: 1.2,
+            width: context.responsiveSize(1.2),
           ),
         ),
         child: Column(
@@ -683,16 +693,16 @@ class _EmptyBanner extends StatelessWidget {
           children: [
             Icon(
               isError ? Icons.cloud_off_rounded : Icons.spa_rounded,
-              size: 36,
+              size: context.responsiveSize(36),
               color: AppColors.warmGold.withValues(alpha: 0.5),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: context.responsiveSize(12)),
             Text(
               AppStrings.get('daily_quote_unavailable', languageCode),
               textAlign: TextAlign.center,
               style: AppTypography.getStyle(
                 languageCode: languageCode,
-                fontSize: 14,
+                fontSize: context.responsiveFontSize(14),
                 color: isDark
                     ? AppColors.textMutedIvory
                     : AppColors.textMutedBrown,

@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_typography.dart';
+import '../widgets/animated_interactions.dart';
 
 /// AppTheme builds Material 3 light & dark themes tailored for the
 /// spiritual aesthetic of Valmiki Ramayan.
 class AppTheme {
   AppTheme._();
+
+  static const _pageTransitionsTheme = PageTransitionsTheme(
+    builders: {
+      TargetPlatform.android: SpiritualPageTransitionsBuilder(),
+      TargetPlatform.iOS: SpiritualPageTransitionsBuilder(),
+      TargetPlatform.macOS: SpiritualPageTransitionsBuilder(),
+      TargetPlatform.windows: SpiritualPageTransitionsBuilder(),
+      TargetPlatform.linux: SpiritualPageTransitionsBuilder(),
+    },
+  );
 
   static ThemeData lightTheme(String languageCode) {
     final base = ThemeData(
@@ -16,6 +27,7 @@ class AppTheme {
 
     return base.copyWith(
       scaffoldBackgroundColor: AppColors.parchmentLight,
+      pageTransitionsTheme: _pageTransitionsTheme,
       colorScheme: ColorScheme.light(
         primary: AppColors.deepSaffron,
         secondary: AppColors.warmGold,
@@ -83,6 +95,7 @@ class AppTheme {
 
     return base.copyWith(
       scaffoldBackgroundColor: AppColors.darkBackground,
+      pageTransitionsTheme: _pageTransitionsTheme,
       colorScheme: ColorScheme.dark(
         primary: AppColors.brightSaffron,
         secondary: AppColors.warmGold,

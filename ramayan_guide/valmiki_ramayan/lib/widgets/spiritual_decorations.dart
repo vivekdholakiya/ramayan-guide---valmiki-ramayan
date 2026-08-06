@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_typography.dart';
+import '../services/context_extensions.dart';
 import 'diya_painter.dart';
 
 /// MandalaDivider renders a sacred mandala-inspired decorative divider.
@@ -10,12 +11,12 @@ class MandalaDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20.0),
+      padding: EdgeInsets.symmetric(vertical: context.responsiveSize(20.0)),
       child: Row(
         children: [
           Expanded(
             child: Container(
-              height: 1,
+              height: context.responsiveSize(1),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -26,13 +27,13 @@ class MandalaDivider extends StatelessWidget {
               ),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12.0),
-            child: DiyaWidget(size: 22),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: context.responsiveSize(12.0)),
+            child: DiyaWidget(size: context.responsiveSize(22)),
           ),
           Expanded(
             child: Container(
-              height: 1,
+              height: context.responsiveSize(1),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
@@ -66,31 +67,34 @@ class SpiritualSectionHeader extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.responsiveSize(16.0),
+        vertical: context.responsiveSize(12.0),
+      ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(6.0),
+            padding: EdgeInsets.all(context.responsiveSize(6.0)),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: AppColors.deepSaffron.withValues(alpha: 0.15),
               border: Border.all(
                 color: AppColors.warmGold.withValues(alpha: 0.5),
-                width: 1,
+                width: context.responsiveSize(1),
               ),
             ),
             child: Icon(
               icon ?? Icons.auto_awesome_rounded,
-              size: 16,
+              size: context.responsiveSize(16),
               color: AppColors.deepSaffron,
             ),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: context.responsiveSize(10)),
           Text(
             title,
             style: AppTypography.getStyle(
               languageCode: languageCode,
-              fontSize: 18,
+              fontSize: context.responsiveFontSize(18),
               fontWeight: FontWeight.bold,
               color: isDark ? AppColors.textLightIvory : AppColors.textDarkBrown,
             ),
@@ -109,9 +113,11 @@ class LotusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsiveBadgeSize = context.responsiveSize(size);
+
     return Container(
-      width: size,
-      height: size,
+      width: responsiveBadgeSize,
+      height: responsiveBadgeSize,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: RadialGradient(
@@ -122,13 +128,13 @@ class LotusBadge extends StatelessWidget {
         ),
         border: Border.all(
           color: AppColors.warmGold.withValues(alpha: 0.6),
-          width: 1.2,
+          width: context.responsiveSize(1.2),
         ),
       ),
       child: Center(
         child: Icon(
           Icons.spa_rounded,
-          size: size * 0.55,
+          size: responsiveBadgeSize * 0.55,
           color: AppColors.deepSaffron,
         ),
       ),

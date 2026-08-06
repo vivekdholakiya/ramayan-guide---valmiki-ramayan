@@ -4,23 +4,17 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_typography.dart';
 import '../constants/util.dart';
 import '../models/status_item.dart';
 import '../providers/language_provider.dart';
+import '../services/context_extensions.dart';
 import '../widgets/status_card.dart';
-import 'package:path_provider/path_provider.dart';
 
 /// Full-screen immersive status viewer.
-///
-/// Features:
-///  - Horizontal swipe between status items (PageView)
-///  - Immersive dark UI
-///  - Share action (renders quote+image together via RepaintBoundary)
-///  - Page indicator dots
-///  - Smooth page transitions
 class StatusViewerScreen extends ConsumerStatefulWidget {
   final List<StatusItem> items;
   final int initialIndex;
@@ -44,7 +38,6 @@ class _StatusViewerScreenState extends ConsumerState<StatusViewerScreen>
   bool _showUI = true;
   bool _isSharing = false;
 
-  // One GlobalKey per page for RepaintBoundary capture
   late List<GlobalKey> _repaintKeys;
 
   @override
@@ -113,7 +106,7 @@ class _StatusViewerScreenState extends ConsumerState<StatusViewerScreen>
 
       await Share.shareXFiles(
         [XFile(file.path)],
-        text:appUrl,
+        text: appUrl,
       );
     } catch (e) {
       debugPrint('[StatusViewer] Share error: $e');
@@ -127,12 +120,10 @@ class _StatusViewerScreenState extends ConsumerState<StatusViewerScreen>
     final language = ref.watch(languageProvider);
 
     return Scaffold(
-      // backgroundColor: Colors.black,
       body: GestureDetector(
         onTap: _toggleUI,
         child: Stack(
           children: [
-            // ── PageView ───────────────────────────────────────────────
             PageView.builder(
               controller: _pageController,
               itemCount: widget.items.length,
@@ -147,8 +138,10 @@ class _StatusViewerScreenState extends ConsumerState<StatusViewerScreen>
                 final item = widget.items[index];
                 return SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: context.responsiveSize(16),
+                      vertical: context.responsiveSize(12),
+                    ),
                     child: Center(
                       child: RepaintBoundary(
                         key: _repaintKeys[index],
@@ -162,8 +155,6 @@ class _StatusViewerScreenState extends ConsumerState<StatusViewerScreen>
                 );
               },
             ),
-
-            // ── Top bar ────────────────────────────────────────────────
             Positioned(
               top: 0,
               left: 0,
@@ -172,8 +163,10 @@ class _StatusViewerScreenState extends ConsumerState<StatusViewerScreen>
                 opacity: _uiFadeAnimation,
                 child: SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 4),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: context.responsiveSize(8),
+                      vertical: context.responsiveSize(4),
+                    ),
                     child: Row(
                       children: [
                         _GlassButton(
@@ -199,8 +192,6 @@ class _StatusViewerScreenState extends ConsumerState<StatusViewerScreen>
                 ),
               ),
             ),
-
-            // ── Bottom page dots ───────────────────────────────────────
             Positioned(
               bottom: 0,
               left: 0,
@@ -209,7 +200,7 @@ class _StatusViewerScreenState extends ConsumerState<StatusViewerScreen>
                 opacity: _uiFadeAnimation,
                 child: SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
+                    padding: EdgeInsets.only(bottom: context.responsiveSize(16)),
                     child: _PageDots(
                       count: widget.items.length,
                       current: _currentIndex,
@@ -218,16 +209,12 @@ class _StatusViewerScreenState extends ConsumerState<StatusViewerScreen>
                 ),
               ),
             ),
-
-
           ],
         ),
       ),
     );
   }
 }
-
-// ── Private helper widgets ────────────────────────────────────────────────
 
 class _GlassButton extends StatelessWidget {
   final IconData icon;
@@ -240,17 +227,21 @@ class _GlassButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 40,
-        height: 40,
+        width: context.responsiveSize(40),
+        height: context.responsiveSize(40),
         decoration: BoxDecoration(
           color: Colors.black.withValues(alpha: 0.45),
           shape: BoxShape.circle,
           border: Border.all(
             color: Colors.white.withValues(alpha: 0.15),
-            width: 0.8,
+            width: context.responsiveSize(0.8),
           ),
         ),
-        child: Icon(icon, color: Colors.white, size: 20),
+        child: Icon(
+          icon,
+          color: Colors.white,
+          size: context.responsiveSize(20),
+        ),
       ),
     );
   }
@@ -270,20 +261,23 @@ class _PageIndicatorLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      padding: EdgeInsets.symmetric(
+        horizontal: context.responsiveSize(12),
+        vertical: context.responsiveSize(5),
+      ),
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(context.responsiveSize(12)),
         border: Border.all(
           color: AppColors.warmGold.withValues(alpha: 0.3),
-          width: 0.8,
+          width: context.responsiveSize(0.8),
         ),
       ),
       child: Text(
         '$current / $total',
         style: AppTypography.getStyle(
           languageCode: languageCode,
-          fontSize: 12,
+          fontSize: context.responsiveFontSize(12),
           fontWeight: FontWeight.w600,
           color: Colors.white.withValues(alpha: 0.9),
           height: 1.2,
@@ -301,7 +295,6 @@ class _PageDots extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Show max 7 dots to avoid overflow
     if (count > 12) {
       return const SizedBox.shrink();
     }
@@ -312,18 +305,17 @@ class _PageDots extends StatelessWidget {
         final isActive = i == current;
         return AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          margin: const EdgeInsets.symmetric(horizontal: 3),
-          width: isActive ? 18 : 6,
-          height: 6,
+          margin: EdgeInsets.symmetric(horizontal: context.responsiveSize(3)),
+          width: isActive ? context.responsiveSize(18) : context.responsiveSize(6),
+          height: context.responsiveSize(6),
           decoration: BoxDecoration(
             color: isActive
                 ? AppColors.warmGold
                 : Colors.white.withValues(alpha: 0.35),
-            borderRadius: BorderRadius.circular(3),
+            borderRadius: BorderRadius.circular(context.responsiveSize(3)),
           ),
         );
       }),
     );
   }
 }
-

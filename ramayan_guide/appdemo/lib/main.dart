@@ -189,35 +189,35 @@ class _UploadHomePageState extends State<UploadHomePage> {
   Future<Map<String, dynamic>> _loadJson() async {
     if (_cachedJson != null) return _cachedJson!;
     final jsonString =
-    await rootBundle.loadString('assets/main_data.json');
+    await rootBundle.loadString('assets/main_data_en.json');
     final decoded = jsonDecode(jsonString) as Map<String, dynamic>;
     _cachedJson = decoded;
     return decoded;
   }
 
 
-  Future<String> translateText(String text, {String to = 'hi'}) async {
-    if (text.trim().isEmpty) return text;
-
-    final translator = GoogleTranslator();
-
-    try {
-      final result = await translator.translate(
-        text,
-        from: 'gu',
-        to: to,
-      );
-
-      // Important: wait a bit to avoid rate limit
-      await Future.delayed(const Duration(milliseconds: 800));
-
-      print(result.text);
-      return result.text;
-    } catch (e) {
-      print('Translation failed for: $text → $e');
-      return text; // fallback to original text
-    }
-  }
+  // Future<String> translateText(String text, {String to = 'hi'}) async {
+  //   if (text.trim().isEmpty) return text;
+  //
+  //   final translator = GoogleTranslator();
+  //
+  //   try {
+  //     final result = await translator.translate(
+  //       text,
+  //       from: 'gu',
+  //       to: to,
+  //     );
+  //
+  //     // Important: wait a bit to avoid rate limit
+  //     await Future.delayed(const Duration(milliseconds: 800));
+  //
+  //     print(result.text);
+  //     return result.text;
+  //   } catch (e) {
+  //     print('Translation failed for: $text → $e');
+  //     return text; // fallback to original text
+  //   }
+  // }
 
   Future<void> _uploadCategory(CategoryConfig config) async {
     setState(() => _uploadingCategoryId = config.firestoreId);
@@ -236,7 +236,7 @@ class _UploadHomePageState extends State<UploadHomePage> {
       final firestore = FirebaseFirestore.instance;
       final itemsCollection = firestore
           .collection('RamayanaData')
-          .doc('hi')
+          .doc('en')
           .collection(config.firestoreId);
 
       // Build (docId, data) pairs first so every id is guaranteed unique
@@ -258,15 +258,15 @@ class _UploadHomePageState extends State<UploadHomePage> {
         }
         usedIds.add(uniqueId);
 
-        final translatedTitle = await translateText(title);
-        final translatedDes = await translateText(description);
+        // final translatedTitle = await translateText(title);
+        // final translatedDes = await translateText(description);
 
         docsToWrite.add(
           MapEntry(uniqueId, {
             'id': uniqueId,
-            'title': translatedTitle,
-            'description': translatedDes,
-            'language': 'hi',
+            'title': title,
+            'description': description,
+            'language': 'en',
             'category': config.firestoreId,
           }),
         );
@@ -347,7 +347,6 @@ class _UploadHomePageState extends State<UploadHomePage> {
       ),
     );
   }
-
 }
 
 //

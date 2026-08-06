@@ -6,6 +6,8 @@ import '../constants/app_typography.dart';
 import '../models/app_settings.dart';
 import '../providers/language_provider.dart';
 import '../providers/theme_provider.dart';
+import '../screens/language_selection_screen.dart';
+import '../services/context_extensions.dart';
 import 'diya_painter.dart';
 
 class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
@@ -33,20 +35,23 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
     return AppBar(
       leading: showBackButton
           ? IconButton(
-              icon: const Icon(Icons.arrow_back_rounded),
+              icon: Icon(
+                Icons.arrow_back_rounded,
+                size: context.responsiveSize(24),
+              ),
               onPressed: () => Navigator.of(context).maybePop(),
             )
-          : const Padding(
-              padding: EdgeInsets.only(left: 16.0),
+          : Padding(
+              padding: EdgeInsets.only(left: context.responsiveSize(16.0)),
               child: Center(
-                child: DiyaWidget(size: 28),
+                child: DiyaWidget(size: context.responsiveSize(28)),
               ),
             ),
       title: Text(
         appTitle,
         style: AppTypography.getStyle(
           languageCode: language.code,
-          fontSize: 18,
+          fontSize: context.responsiveFontSize(18),
           fontWeight: FontWeight.bold,
           color: isDark ? AppColors.textLightIvory : AppColors.textDarkBrown,
         ),
@@ -54,38 +59,29 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
       actions: [
         if (onSearchPressed != null)
           IconButton(
-            icon: const Icon(Icons.search_rounded),
+            icon: Icon(
+              Icons.search_rounded,
+              size: context.responsiveSize(24),
+            ),
             tooltip: AppStrings.get('search_placeholder', language.code),
             onPressed: onSearchPressed,
           ),
-        // Language Toggle Shortcut
-        PopupMenuButton<AppLanguage>(
-          icon: const Icon(Icons.language_rounded),
-          tooltip: AppStrings.get('settings_language', language.code),
-          onSelected: (selectedLang) {
-            ref.read(languageProvider.notifier).setLanguage(selectedLang);
-          },
-          itemBuilder: (context) => AppLanguage.values.map((lang) {
-            final isSelected = lang == language;
-            return PopupMenuItem<AppLanguage>(
-              value: lang,
-              child: Row(
-                children: [
-                  if (isSelected)
-                    const Icon(Icons.check_rounded, color: AppColors.deepSaffron, size: 18)
-                  else
-                    const SizedBox(width: 18),
-                  const SizedBox(width: 8),
-                  Text(lang.label),
-                ],
-              ),
+        IconButton(
+          icon: Icon(
+            Icons.language_rounded,
+            size: context.responsiveSize(24),
+          ),
+          tooltip: AppStrings.get('nav_settings', language.code),
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => LanguageSelectionScreen(isFromSettings: true,)),
             );
-          }).toList(),
+          },
         ),
-        // Theme Mode Toggle Shortcut
         IconButton(
           icon: Icon(
             isDark ? Icons.wb_sunny_rounded : Icons.nightlight_round,
+            size: context.responsiveSize(24),
             color: isDark ? AppColors.warmGold : AppColors.deepSaffron,
           ),
           tooltip: AppStrings.get('settings_theme', language.code),
@@ -96,11 +92,14 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
         ),
         if (onSettingsPressed != null)
           IconButton(
-            icon: const Icon(Icons.settings_rounded),
+            icon: Icon(
+              Icons.settings_rounded,
+              size: context.responsiveSize(24),
+            ),
             tooltip: AppStrings.get('nav_settings', language.code),
             onPressed: onSettingsPressed,
           ),
-        const SizedBox(width: 4),
+        SizedBox(width: context.responsiveSize(4)),
       ],
     );
   }

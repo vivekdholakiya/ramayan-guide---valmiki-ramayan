@@ -5,8 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'firebase_options.dart';
 
 import 'providers/language_provider.dart';
+import 'providers/offline_provider.dart';
 import 'providers/theme_provider.dart';
 import 'screens/splash_screen.dart';
+import 'services/hive_storage_service.dart';
 import 'services/local_storage_service.dart';
 import 'theme/app_theme.dart';
 
@@ -22,11 +24,13 @@ void main() async {
   }
 
   final localStorageService = await LocalStorageService.init();
+  final hiveStorageService = await HiveStorageService.init();
 
   runApp(
     ProviderScope(
       overrides: [
         localStorageServiceProvider.overrideWithValue(localStorageService),
+        hiveStorageServiceProvider.overrideWithValue(hiveStorageService),
       ],
       child: const ValmikiRamayanApp(),
     ),

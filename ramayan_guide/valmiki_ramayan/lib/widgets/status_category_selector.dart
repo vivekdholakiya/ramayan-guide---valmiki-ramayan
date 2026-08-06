@@ -2,15 +2,9 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_typography.dart';
 import '../models/status_category.dart';
+import '../services/context_extensions.dart';
 
 /// StatusCategorySelector displays a horizontally scrollable row of filter chips.
-///
-/// - First chip is always "બધા" (All)
-/// - Remaining chips are dynamically loaded from Firebase categories
-/// - Selected chip uses saffron background matching the existing app style
-/// - Unselected chips use parchment/dark card surface with gold border
-///
-/// Height is kept compact (~44px) to not compete with the status cards.
 class StatusCategorySelector extends StatelessWidget {
   final List<StatusCategory> categories;
   final String selectedCategoryId; // '' = All
@@ -30,28 +24,29 @@ class StatusCategorySelector extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      height: 48,
+      height: context.responsiveSize(48),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkBackground : AppColors.parchmentLight,
         border: Border(
           bottom: BorderSide(
             color: AppColors.warmGold.withValues(alpha: isDark ? 0.2 : 0.3),
-            width: 0.8,
+            width: context.responsiveSize(0.8),
           ),
         ),
       ),
       child: ListView(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.responsiveSize(12),
+          vertical: context.responsiveSize(6),
+        ),
         children: [
-          // "All" chip
           _CategoryChip(
             label: _allLabel(languageCode),
             isSelected: selectedCategoryId.isEmpty,
             isDark: isDark,
             onTap: () => onCategorySelected(''),
           ),
-          // Dynamic category chips
           ...categories.map((cat) => _CategoryChip(
                 label: cat.name,
                 isSelected: selectedCategoryId == cat.id,
@@ -91,32 +86,35 @@ class _CategoryChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: EdgeInsets.only(right: context.responsiveSize(8)),
       child: GestureDetector(
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+          padding: EdgeInsets.symmetric(
+            horizontal: context.responsiveSize(14),
+            vertical: context.responsiveSize(5),
+          ),
           decoration: BoxDecoration(
             color: isSelected
                 ? AppColors.deepSaffron
                 : (isDark
                     ? AppColors.darkCard
                     : AppColors.parchmentCard),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(context.responsiveSize(20)),
             border: Border.all(
               color: isSelected
                   ? AppColors.deepSaffron
                   : AppColors.warmGold
                       .withValues(alpha: isDark ? 0.3 : 0.45),
-              width: isSelected ? 0 : 1,
+              width: isSelected ? 0 : context.responsiveSize(1),
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
                       color: AppColors.deepSaffron.withValues(alpha: 0.35),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+                      blurRadius: context.responsiveSize(8),
+                      offset: Offset(0, context.responsiveSize(2)),
                     )
                   ]
                 : [],
@@ -126,7 +124,7 @@ class _CategoryChip extends StatelessWidget {
               label,
               style: AppTypography.getStyle(
                 languageCode: 'gu',
-                fontSize: 13,
+                fontSize: context.responsiveFontSize(13),
                 fontWeight:
                     isSelected ? FontWeight.bold : FontWeight.w500,
                 color: isSelected

@@ -7,6 +7,8 @@ import '../models/app_settings.dart';
 import '../models/ramayan_category.dart';
 import '../providers/category_provider.dart';
 import '../providers/language_provider.dart';
+import '../services/context_extensions.dart';
+import '../widgets/animated_interactions.dart';
 import '../widgets/empty_state_view.dart';
 import '../widgets/fast_search_bar.dart';
 import '../widgets/ramayan_item_card.dart';
@@ -46,14 +48,17 @@ class CategoryScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: Icon(
+            Icons.arrow_back_rounded,
+            size: context.responsiveSize(24),
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           categoryTitle,
           style: AppTypography.getStyle(
             languageCode: language.code,
-            fontSize: 20,
+            fontSize: context.responsiveFontSize(20),
             fontWeight: FontWeight.bold,
             color: isDark ? AppColors.textLightIvory : AppColors.textDarkBrown,
           ),
@@ -64,12 +69,15 @@ class CategoryScreen extends ConsumerWidget {
           maxWidth: 1280.0,
           child: Column(
             children: [
-              FastSearchBar(
-                languageCode: language.code,
-                hintText: AppStrings.get('category_search_placeholder', language.code),
-                onChanged: (query) {
-                  ref.read(categorySearchQueryProvider.notifier).state = query;
-                },
+              StaggeredEntrance(
+                index: 0,
+                child: FastSearchBar(
+                  languageCode: language.code,
+                  hintText: AppStrings.get('category_search_placeholder', language.code),
+                  onChanged: (query) {
+                    ref.read(categorySearchQueryProvider.notifier).state = query;
+                  },
+                ),
               ),
               Expanded(
                 child: asyncFilteredItems.when(
@@ -86,7 +94,6 @@ class CategoryScreen extends ConsumerWidget {
                           type: EmptyStateType.noResults,
                         );
                       } else {
-                        // Collection is empty in Firestore for this language (e.g. hi or en before upload)
                         return EmptyStateView(
                           languageCode: language.code,
                           type: EmptyStateType.comingSoon,
@@ -101,11 +108,42 @@ class CategoryScreen extends ConsumerWidget {
 
                     if (crossAxisCount == 1) {
                       return ListView.builder(
-                        padding: const EdgeInsets.only(bottom: 24.0),
+                        padding: EdgeInsets.only(bottom: context.responsiveSize(24.0)),
                         itemCount: items.length,
                         itemBuilder: (context, index) {
                           final item = items[index];
-                          return RamayanItemCard(
+                          return StaggeredEntrance(
+                            index: index,
+                            child: RamayanItemCard(
+                              item: item,
+                              languageCode: language.code,
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => ItemDetailScreen(item: item),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      );
+                    }
+
+                    return GridView.builder(
+                      padding: EdgeInsets.all(context.responsiveSize(16.0)),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        crossAxisSpacing: context.responsiveSize(16.0),
+                        mainAxisSpacing: context.responsiveSize(16.0),
+                        mainAxisExtent: context.responsiveSize(170.0),
+                      ),
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        final item = items[index];
+                        return StaggeredEntrance(
+                          index: index,
+                          child: RamayanItemCard(
                             item: item,
                             languageCode: language.code,
                             onTap: () {
@@ -115,32 +153,7 @@ class CategoryScreen extends ConsumerWidget {
                                 ),
                               );
                             },
-                          );
-                        },
-                      );
-                    }
-
-                    return GridView.builder(
-                      padding: const EdgeInsets.all(16.0),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: crossAxisCount,
-                        crossAxisSpacing: 16.0,
-                        mainAxisSpacing: 16.0,
-                        mainAxisExtent: 170.0,
-                      ),
-                      itemCount: items.length,
-                      itemBuilder: (context, index) {
-                        final item = items[index];
-                        return RamayanItemCard(
-                          item: item,
-                          languageCode: language.code,
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => ItemDetailScreen(item: item),
-                              ),
-                            );
-                          },
+                          ),
                         );
                       },
                     );
