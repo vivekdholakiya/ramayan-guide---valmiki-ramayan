@@ -218,7 +218,7 @@ class _TopBadge extends StatelessWidget {
             ),
             SizedBox(width: context.responsiveSize(6)),
             Text(
-              'VD\'S Valmiki Ramayan App',
+              'Ramayana Guide: Valmiki Ramayana',
               style: AppTypography.getStyle(
                 languageCode: 'en',
                 fontSize: context.responsiveFontSize(11),

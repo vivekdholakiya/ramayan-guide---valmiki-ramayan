@@ -17,7 +17,7 @@ import '../widgets/navigation_shell.dart';
 import '../widgets/ramayan_item_card.dart';
 import '../widgets/responsive_container.dart';
 import '../widgets/spiritual_decorations.dart';
-import '../widgets/web_footer.dart';
+import 'categories_list_screen.dart';
 import 'category_screen.dart';
 import 'favorites_screen.dart';
 import 'item_detail_screen.dart';
@@ -62,79 +62,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   }
 }
 
-/// Standalone Categories Overview screen tab
-class CategoriesListScreen extends ConsumerWidget {
-  const CategoriesListScreen({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final language = ref.watch(languageProvider);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final width = MediaQuery.of(context).size.width;
-
-    int crossAxisCount = 2;
-    if (width >= 1100) {
-      crossAxisCount = 4;
-    } else if (width >= 700) {
-      crossAxisCount = 3;
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        leading: Padding(
-          padding: EdgeInsets.only(left: context.responsiveSize(16.0)),
-          child: Center(
-            child: Icon(
-              Icons.grid_view_rounded,
-              color: AppColors.deepSaffron,
-              size: context.responsiveSize(26),
-            ),
-          ),
-        ),
-        title: Text(
-          AppStrings.get('nav_categories', language.code),
-          style: AppTypography.getStyle(
-            languageCode: language.code,
-            fontSize: context.responsiveFontSize(20),
-            fontWeight: FontWeight.bold,
-            color: isDark ? AppColors.textLightIvory : AppColors.textDarkBrown,
-          ),
-        ),
-      ),
-      body: SafeArea(
-        child: ResponsiveContainer(
-          maxWidth: 1280.0,
-          child: MasonryGridView.count(
-            padding: EdgeInsets.all(context.responsiveSize(16.0)),
-            crossAxisCount: crossAxisCount,
-            mainAxisSpacing: context.responsiveSize(16.0),
-            crossAxisSpacing: context.responsiveSize(16.0),
-            itemCount: RamayanCategory.categories.length,
-            itemBuilder: (context, index) {
-              final category = RamayanCategory.categories[index];
-              final height = context.responsiveSize(190.0);
-              return StaggeredEntrance(
-                index: index,
-                child: CategoryCard(
-                  category: category,
-                  languageCode: language.code,
-                  height: height,
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => CategoryScreen(category: category),
-                      ),
-                    );
-                  },
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 /// Main Spiritual Home Tab Screen
 class HomeScreen extends ConsumerWidget {
@@ -150,32 +77,25 @@ class HomeScreen extends ConsumerWidget {
     final favorites = ref.watch(favoritesProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final width = MediaQuery.of(context).size.width;
-    final isDesktop = width >= 1024;
 
     int categoryCrossAxisCount = 2;
-    if (width >= 1100) {
+    if (context.isIPad) {
+      categoryCrossAxisCount = context.isLandscape ? 4 : 3;
+    } else if (width >= 1100) {
       categoryCrossAxisCount = 4;
     } else if (width >= 650) {
       categoryCrossAxisCount = 3;
     }
 
     return Scaffold(
-      appBar: isDesktop
-          ? null
-          : CustomAppBar(
-              onSettingsPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                );
-              },
-            ),
+      appBar: const CustomAppBar(),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.only(bottom: context.responsiveSize(0.0)),
           child: Column(
             children: [
               ResponsiveContainer(
-                maxWidth: 1280.0,
+                maxWidth: context.isIPad ? 960.0 : 1280.0,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -252,7 +172,7 @@ class HomeScreen extends ConsumerWidget {
                             .map((entry) {
                           final index = entry.key;
                           final category = entry.value;
-                          final height = context.responsiveSize(190.0);
+                          final height = context.responsiveSize(250.0);
                           return StaggeredEntrance(
                             index: index,
                             child: CategoryCard(
@@ -334,9 +254,6 @@ class HomeScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-
-              // Desktop Web Footer
-              if (isDesktop) WebFooter(onNavigate: onNavigate),
             ],
           ),
         ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_strings.dart';
 import '../constants/app_typography.dart';
@@ -45,35 +46,63 @@ class FavoritesScreen extends ConsumerWidget {
       ),
       body: SafeArea(
         child: ResponsiveContainer(
-          maxWidth: 1280.0,
+          maxWidth: context.isIPad ? 1000.0 : 1280.0,
           child: favorites.isEmpty
               ? EmptyStateView(
                   languageCode: language.code,
                   type: EmptyStateType.noFavorites,
                 )
-              : ListView.builder(
-                  padding: EdgeInsets.symmetric(
-                    vertical: context.responsiveSize(12.0),
-                  ),
-                  itemCount: favorites.length,
-                  itemBuilder: (context, index) {
-                    final item = favorites[index];
-                    return StaggeredEntrance(
-                      index: index,
-                      child: RamayanItemCard(
-                        item: item,
-                        languageCode: language.code,
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => ItemDetailScreen(item: item),
-                            ),
-                          );
-                        },
+              : context.isIPad
+                  ? MasonryGridView.count(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: context.responsiveSize(8.0),
+                        vertical: context.responsiveSize(12.0),
                       ),
-                    );
-                  },
-                ),
+                      crossAxisCount: context.isLandscape ? 3 : 2,
+                      mainAxisSpacing: context.responsiveSize(10.0),
+                      crossAxisSpacing: context.responsiveSize(10.0),
+                      itemCount: favorites.length,
+                      itemBuilder: (context, index) {
+                        final item = favorites[index];
+                        return StaggeredEntrance(
+                          index: index,
+                          child: RamayanItemCard(
+                            item: item,
+                            languageCode: language.code,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => ItemDetailScreen(item: item),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    )
+                  : ListView.builder(
+                      padding: EdgeInsets.symmetric(
+                        vertical: context.responsiveSize(12.0),
+                      ),
+                      itemCount: favorites.length,
+                      itemBuilder: (context, index) {
+                        final item = favorites[index];
+                        return StaggeredEntrance(
+                          index: index,
+                          child: RamayanItemCard(
+                            item: item,
+                            languageCode: language.code,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => ItemDetailScreen(item: item),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
         ),
       ),
     );

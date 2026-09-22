@@ -24,9 +24,11 @@ import 'terms_of_use_screen.dart';
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
-  Future<void> _shareApp(String languageCode) async {
+  Future<void> _shareApp(BuildContext context, String languageCode) async {
     final text = '${AppStrings.get('share_text', languageCode)}\n$appUrl';
-    await Share.share(text);
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box != null ? (box.localToGlobal(Offset.zero) & box.size) : null;
+    await Share.share(text, sharePositionOrigin: origin);
   }
 
   Future<void> _rateApp() async {
@@ -379,7 +381,7 @@ class SettingsScreen extends ConsumerWidget {
                       size: context.responsiveSize(16),
                       color: AppColors.deepSaffron,
                     ),
-                    onTap: () => _shareApp(langCode),
+                    onTap: () => _shareApp(context, langCode),
                   ),
                 ),
                 SizedBox(height: context.responsiveSize(12)),
@@ -574,7 +576,7 @@ class SettingsScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-              if (trailing != null) trailing,
+              ?trailing,
             ],
           ),
         ),

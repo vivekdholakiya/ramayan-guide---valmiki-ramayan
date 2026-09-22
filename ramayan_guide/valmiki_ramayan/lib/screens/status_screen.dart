@@ -22,13 +22,9 @@ class StatusScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final language = ref.watch(languageProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final width = MediaQuery.of(context).size.width;
-    final isDesktop = width >= 1024;
 
     return Scaffold(
-      appBar: isDesktop
-          ? null
-          : _StatusAppBar(languageCode: language.code, isDark: isDark),
+      appBar: _StatusAppBar(languageCode: language.code, isDark: isDark),
       body: SafeArea(
         child: _StatusBody(languageCode: language.code),
       ),
@@ -112,7 +108,7 @@ class _StatusBody extends ConsumerWidget {
             languageCode: languageCode,
           ),
           loading: () => _CategorySelectorSkeleton(),
-          error: (_, _e) => const SizedBox.shrink(),
+          error: (_, e) => const SizedBox.shrink(),
         ),
         Expanded(
           child: _StatusCardList(languageCode: languageCode),
@@ -205,10 +201,22 @@ class _StatusCardScrollView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    if (context.isIPad) {
+      final crossAxisCount = context.isLandscape ? 3 : 2;
+      return _StatusGrid(
+        items: items,
+        languageCode: languageCode,
+        crossAxisCount: crossAxisCount,
+      );
+    }
 
+    final width = MediaQuery.of(context).size.width;
     if (width >= 900) {
-      return _DesktopStatusGrid(items: items, languageCode: languageCode);
+      return _StatusGrid(
+        items: items,
+        languageCode: languageCode,
+        crossAxisCount: width >= 1200 ? 3 : 2,
+      );
     }
 
     return ResponsiveContainer(
@@ -219,7 +227,7 @@ class _StatusCardScrollView extends StatelessWidget {
           vertical: context.responsiveSize(16),
         ),
         itemCount: items.length,
-        separatorBuilder: (_, _i) => SizedBox(height: context.responsiveSize(20)),
+        separatorBuilder: (_, i) => SizedBox(height: context.responsiveSize(20)),
         itemBuilder: (context, index) {
           return _AnimatedStatusCard(
             item: items[index],
@@ -241,19 +249,23 @@ class _StatusCardScrollView extends StatelessWidget {
   }
 }
 
-class _DesktopStatusGrid extends StatelessWidget {
+class _StatusGrid extends StatelessWidget {
   final List<StatusItem> items;
   final String languageCode;
+  final int crossAxisCount;
 
-  const _DesktopStatusGrid(
-      {required this.items, required this.languageCode});
+  const _StatusGrid({
+    required this.items,
+    required this.languageCode,
+    this.crossAxisCount = 2,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
       padding: EdgeInsets.all(context.responsiveSize(24)),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+        crossAxisCount: crossAxisCount,
         crossAxisSpacing: context.responsiveSize(20),
         mainAxisSpacing: context.responsiveSize(20),
         childAspectRatio: 9 / 16,
@@ -346,10 +358,10 @@ class _StatusViewerRoute extends PageRouteBuilder {
 
   _StatusViewerRoute({required this.screen})
       : super(
-          pageBuilder: (_, _a, _b) => screen,
+          pageBuilder: (_, animation, secondaryAnimation) => screen,
           transitionDuration: const Duration(milliseconds: 350),
           reverseTransitionDuration: const Duration(milliseconds: 280),
-          transitionsBuilder: (_, animation, _c, child) {
+          transitionsBuilder: (_, animation, secondaryAnimation, child) {
             return FadeTransition(
               opacity: CurvedAnimation(
                 parent: animation,

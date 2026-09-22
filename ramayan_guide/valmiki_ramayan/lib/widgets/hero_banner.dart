@@ -71,6 +71,9 @@ class _HeroBannerState extends ConsumerState<HeroBanner>
     if (_isSharing) return;
     setState(() => _isSharing = true);
 
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box != null ? (box.localToGlobal(Offset.zero) & box.size) : null;
+
     try {
       final boundary = _repaintKey.currentContext?.findRenderObject()
           as RenderRepaintBoundary?;
@@ -97,6 +100,7 @@ class _HeroBannerState extends ConsumerState<HeroBanner>
       await Share.shareXFiles(
         [XFile(file.path)],
         text: appUrl,
+        sharePositionOrigin: origin,
       );
     } catch (e) {
       debugPrint('[HeroBanner] Share error: $e');

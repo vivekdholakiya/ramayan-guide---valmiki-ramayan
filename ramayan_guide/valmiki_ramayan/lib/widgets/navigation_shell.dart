@@ -4,7 +4,7 @@ import '../constants/app_colors.dart';
 import '../constants/app_strings.dart';
 import '../providers/language_provider.dart';
 import '../services/context_extensions.dart';
-import 'web_nav_bar.dart';
+import 'diya_painter.dart';
 
 class NavigationShell extends ConsumerWidget {
   final int selectedIndex;
@@ -21,8 +21,6 @@ class NavigationShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final language = ref.watch(languageProvider);
-    final width = MediaQuery.of(context).size.width;
-    final isDesktop = width >= 1024;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final destinations = [
@@ -54,16 +52,6 @@ class NavigationShell extends ConsumerWidget {
       ),
     ];
 
-    if (isDesktop) {
-      return Scaffold(
-        appBar: WebDesktopNavBar(
-          selectedIndex: selectedIndex,
-          onDestinationSelected: onDestinationSelected,
-        ),
-        body: child,
-      );
-    }
-
     return Scaffold(
       body: child,
       bottomNavigationBar: Container(
@@ -87,7 +75,7 @@ class NavigationShell extends ConsumerWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 16,
               offset: const Offset(0, -2),
             ),
@@ -101,7 +89,7 @@ class NavigationShell extends ConsumerWidget {
           child: NavigationBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            height: 72,
+            height: context.responsiveSize(72),
             selectedIndex: selectedIndex,
             onDestinationSelected: onDestinationSelected,
             labelBehavior:
@@ -109,7 +97,29 @@ class NavigationShell extends ConsumerWidget {
             indicatorColor: Theme.of(context)
                 .colorScheme
                 .primary
-                .withOpacity(0.15),
+                .withValues(alpha: 0.15),
+
+
+            // // --- Icon Styling ---
+            // selectedIconTheme: const IconThemeData(
+            //   size: 30, // Increased size for selected icon
+            //   color: Colors.blueAccent,
+            // ),
+            // unselectedIconTheme: const IconThemeData(
+            //   size: 24, // Standard size for unselected
+            //   color: Colors.grey,
+            // ),
+            //
+            // // --- Label Styling ---
+            // selectedLabelStyle: const TextStyle(
+            //   fontSize: 14,
+            //   fontWeight: FontWeight.bold,
+            //   letterSpacing: 0.5,
+            // ),
+            // unselectedLabelStyle: const TextStyle(
+            //   fontSize: 12,
+            //   fontWeight: FontWeight.normal,
+            // ),
             destinations: destinations,
           ),
         ),

@@ -107,9 +107,11 @@ class _RamayanItemCardState extends ConsumerState<RamayanItemCard> {
                       SizedBox(width: context.responsiveSize(8.0)),
                       GestureDetector(
                         onTap: () {
+
                           ref
                               .read(favoritesProvider.notifier)
                               .toggleFavorite(widget.item);
+                          setState(() {});
                         },
                         child: AnimatedScale(
                           scale: isFav ? 1.15 : 1.0,

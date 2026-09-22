@@ -55,11 +55,11 @@ class AppStrings {
       'copyright_text': '© 2026 વાલ્મીકિ રામાયણ. સર્વાધિકાર સુરક્ષિત.',
       'coming_soon_title': 'ટૂંક સમયમાં આવી રહ્યું છે',
       'coming_soon_desc':
-          'આ ભાષા માટે ડેટા ઉપલબ્ધ થઈ રહ્યો છે. કૃપા કરીને ભાષા બદલો અથવા પાછળથી પ્રયાસ કરો.',
+      'આ ભાષા માટે ડેટા ઉપલબ્ધ થઈ રહ્યો છે. કૃપા કરીને ભાષા બદલો અથવા પાછળથી પ્રયાસ કરો.',
       'change_language': 'ભાષા બદલો',
       'error_loading_title': 'સામગ્રી લોડ થઈ શકી નથી',
       'error_loading_desc':
-          'કૃપા કરીને તમારું ઇન્ટરનેટ કનેક્શન ચકાસો અને ફરી પ્રયાસ કરો.',
+      'કૃપા કરીને તમારું ઇન્ટરનેટ કનેક્શન ચકાસો અને ફરી પ્રયાસ કરો.',
       'retry_btn': 'ફરી પ્રયાસ કરો',
       'read_more': 'વધુ વાંચો',
       'items_count': 'આઇટમ્સ',
@@ -69,7 +69,7 @@ class AppStrings {
       'theme_dark': 'ડાર્ક (અંધકાર)',
       'theme_system': 'સિસ્ટમ',
       'about_description':
-          'વાલ્મીકિ રામાયણ એ ભગવાન શ્રી રામચંદ્રજીના પાવન ચરિત્ર, આદર્શો અને સનાતન જ્ઞાનને ડિજિટલ સ્વરૂપે સરળતાથી વાંચવા માટેની એક ભક્તિમય એપ્લિકેશન છે.',
+      'વાલ્મીકિ રામાયણ એ ભગવાન શ્રી રામચંદ્રજીના પાવન ચરિત્ર, આદર્શો અને સનાતન જ્ઞાનને ડિજિટલ સ્વરૂપે સરળતાથી વાંચવા માટેની એક ભક્તિમય એપ્લિકેશન છે.',
       'cat_sath_kand': 'સાત કાંડ',
       'cat_rishio': 'ઋષિઓ',
       'cat_vanaro': 'વાનરો',
@@ -112,11 +112,11 @@ class AppStrings {
       'no_favorites_desc': 'आपने अभी तक कोई पसंदीदा आइटम नहीं जोड़ा है।',
       'coming_soon_title': 'शीघ्र आ रहा है',
       'coming_soon_desc':
-          'इस भाषा की सामग्री जल्द उपलब्ध होगी। कृपया भाषा बदलें या बाद में प्रयास करें।',
+      'इस भाषा की सामग्री जल्द उपलब्ध होगी। कृपया भाषा बदलें या बाद में प्रयास करें।',
       'change_language': 'भाषा बदलें',
       'error_loading_title': 'सामग्री लोड नहीं हो सकी',
       'error_loading_desc':
-          'कृपया अपना इंटरनेट कनेक्शन जांचें और पुनः प्रयास करें।',
+      'कृपया अपना इंटरनेट कनेक्शन जांचें और पुनः प्रयास करें।',
       'retry_btn': 'पुनः प्रयास करें',
       'read_more': 'और पढ़ें',
       'items_count': 'सामग्री',
@@ -151,7 +151,7 @@ class AppStrings {
       'developer_name': 'वाल्मीकि रामायण भक्ति टीम',
       'copyright_text': '© 2026 वाल्मीकि रामायण। सर्वाधिकार सुरक्षित।',
       'about_description':
-          'वाल्मीकि रामायण भगवान श्री रामचंद्र के पावन चरित्र, आदर्शों और सनातन ज्ञान को समर्पित एक भक्तिपूर्ण ऐप है.',
+      'वाल्मीकि रामायण भगवान श्री रामचंद्र के पावन चरित्र, आदर्शों और सनातन ज्ञान को समर्पित एक भक्तिपूर्ण ऐप है.',
       'cat_sath_kand': 'सात कांड',
       'cat_rishio': 'ऋषि मुनि',
       'cat_vanaro': 'वानर',
@@ -173,12 +173,12 @@ class AppStrings {
     'en': {
       'app_title': 'Valmiki Ramayan',
       'app_subtitle':
-          'A Sacred Journey into the Life & Ideals of Lord Shri Ram',
+      'A Sacred Journey into the Life & Ideals of Lord Shri Ram',
       'hero_subtitle':
-          'Explore the divine knowledge, sacred places, and revered characters of Ramayana',
+      'Explore the divine knowledge, sacred places, and revered characters of Ramayana',
       'select_language_title': 'Valmiki Ramayan',
       'select_language_subtitle':
-          'A Sacred Journey into the Life & Ideals of Lord Shri Ram',
+      'A Sacred Journey into the Life & Ideals of Lord Shri Ram',
       'choose_language_prompt': 'Select Your Language',
       'continue_btn': 'Continue',
       'nav_home': 'Home',
@@ -197,11 +197,11 @@ class AppStrings {
       'no_favorites_desc': 'Items you bookmark will appear here.',
       'coming_soon_title': 'Coming Soon',
       'coming_soon_desc':
-          'Data for this language is being prepared. Please switch to Gujarati or check back soon.',
+      'Data for this language is being prepared. Please switch to Gujarati or check back soon.',
       'change_language': 'Change Language',
       'error_loading_title': 'Unable to Load Content',
       'error_loading_desc':
-          'Please check your internet connection and try again.',
+      'Please check your internet connection and try again.',
       'retry_btn': 'Retry',
       'read_more': 'Read More',
       'items_count': 'items',
@@ -217,11 +217,21 @@ class AppStrings {
       'settings_language': 'App Language',
       'settings_theme': 'App Theme',
       'settings_font_size': 'Reading Font Size',
+
+      'setting_share_app': 'Share App',
+      'setting_share_subtitle': 'Share the divine Ramayana with friends and family',
+      'setting_rate_app': 'Rate App',
+      'setting_rate_subtitle': 'Give your valuable rating and feedback on Play Store',
+
+      'sec_support': 'Support & Share',
+      'sec_legal': 'Legal & Policies',
+
       'settings_about': 'About Valmiki Ramayan',
       'settings_privacy': 'Privacy Policy',
+      'settings_terms': 'Terms & Condition',
       'settings_version': 'App Version',
       'about_description':
-          'Valmiki Ramayan is a spiritual application dedicated to presenting the sublime life, eternal virtues, and divine teachings of Lord Shri Ram.',
+      'Valmiki Ramayan is a spiritual application dedicated to presenting the sublime life, eternal virtues, and divine teachings of Lord Shri Ram.',
       'cat_sath_kand': 'Seven Kandas',
       'cat_rishio': 'Rishis & Sages',
       'cat_vanaro': 'Vanaras',

@@ -49,7 +49,9 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
         '🚩 *$title* ($categoryName)\n\n${widget.item.description}\n\n- ${AppStrings.get('share_text', langCode)}';
 
     try {
-      Share.share(text);
+      final box = context.findRenderObject() as RenderBox?;
+      final origin = box != null ? (box.localToGlobal(Offset.zero) & box.size) : null;
+      Share.share(text, sharePositionOrigin: origin);
     } catch (_) {
       Clipboard.setData(ClipboardData(text: text));
       ScaffoldMessenger.of(context).showSnackBar(
@@ -157,16 +159,21 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
       ),
       body: SafeArea(
         child: ResponsiveContainer(
+          maxWidth: context.isIPad ? 780.0 : 1280.0,
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(
-              horizontal: context.responsiveSize(20.0),
+              horizontal: context.isIPad
+                  ? context.responsiveSize(24.0)
+                  : context.responsiveSize(12.0),
               vertical: context.responsiveSize(20.0),
             ),
             child: StaggeredEntrance(
               index: 0,
               child: Container(
-                padding: EdgeInsets.all(context.responsiveSize(20.0)),
-                decoration: BoxDecoration(
+                padding: EdgeInsets.symmetric(
+                  horizontal: context.responsiveSize(12.0),
+                  vertical: context.responsiveSize(20.0),
+                ),                decoration: BoxDecoration(
                   color: isDark ? AppColors.darkCard : AppColors.parchmentCard,
                   borderRadius: BorderRadius.circular(context.responsiveSize(24.0)),
                   border: Border.all(

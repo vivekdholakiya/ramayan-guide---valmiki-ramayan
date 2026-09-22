@@ -79,6 +79,9 @@ class _StatusViewerScreenState extends ConsumerState<StatusViewerScreen>
     if (_isSharing) return;
     setState(() => _isSharing = true);
 
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box != null ? (box.localToGlobal(Offset.zero) & box.size) : null;
+
     try {
       final key = _repaintKeys[_currentIndex];
       final boundary =
@@ -107,6 +110,7 @@ class _StatusViewerScreenState extends ConsumerState<StatusViewerScreen>
       await Share.shareXFiles(
         [XFile(file.path)],
         text: appUrl,
+        sharePositionOrigin: origin,
       );
     } catch (e) {
       debugPrint('[StatusViewer] Share error: $e');

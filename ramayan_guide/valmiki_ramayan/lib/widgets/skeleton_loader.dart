@@ -142,7 +142,7 @@ class SkeletonStatusGrid extends StatelessWidget {
           vertical: context.responsiveSize(16),
         ),
         itemCount: itemCount,
-        separatorBuilder: (_, _i) => SizedBox(height: context.responsiveSize(20)),
+        separatorBuilder: (_, i) => SizedBox(height: context.responsiveSize(20)),
         itemBuilder: (context, index) {
           return AspectRatio(
             aspectRatio: 9 / 16,
@@ -180,8 +180,8 @@ class SkeletonStatusRow extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           padding: EdgeInsets.symmetric(horizontal: context.responsiveSize(16)),
           itemCount: 4,
-          separatorBuilder: (_, _i) => SizedBox(width: context.responsiveSize(12)),
-          itemBuilder: (_, _j) => AspectRatio(
+          separatorBuilder: (_, i) => SizedBox(width: context.responsiveSize(12)),
+          itemBuilder: (_, j) => AspectRatio(
             aspectRatio: 9 / 16,
             child: Container(
               decoration: BoxDecoration(
