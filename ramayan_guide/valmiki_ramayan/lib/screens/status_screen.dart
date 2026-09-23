@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_strings.dart';
 import '../constants/app_typography.dart';
@@ -46,12 +47,14 @@ class _StatusAppBar extends ConsumerWidget implements PreferredSizeWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return AppBar(
       leading: Padding(
-        padding: EdgeInsets.only(left: context.responsiveSize(16.0)),
+        padding: EdgeInsets.only(
+          left: context.responsiveSize(context.isIPad ? 20.0 : 16.0),
+        ),
         child: Center(
           child: Icon(
             Icons.auto_awesome_rounded,
             color: AppColors.deepSaffron,
-            size: context.responsiveSize(26),
+            size: context.responsiveSize(context.isIPad ? 28 : 26),
           ),
         ),
       ),
@@ -59,7 +62,7 @@ class _StatusAppBar extends ConsumerWidget implements PreferredSizeWidget {
         AppStrings.get('nav_status', languageCode),
         style: AppTypography.getStyle(
           languageCode: languageCode,
-          fontSize: context.responsiveFontSize(18),
+          fontSize: context.responsiveFontSize(context.isIPad ? 28 : 20),
           fontWeight: FontWeight.bold,
           color: isDark ? AppColors.textLightIvory : AppColors.textDarkBrown,
         ),
@@ -68,9 +71,9 @@ class _StatusAppBar extends ConsumerWidget implements PreferredSizeWidget {
         IconButton(
           icon: Icon(
             Icons.refresh_rounded,
-            size: context.responsiveSize(24),
+            size: context.responsiveSize(context.isIPad ? 28 : 24),
           ),
-          tooltip: AppStrings.get('retry_btn', languageCode),
+          // tooltip: AppStrings.get('retry_btn', languageCode),
           onPressed: () {
             ref.read(statusServiceProvider).clearCache();
             ref.invalidate(statusCategoriesProvider);
@@ -78,7 +81,7 @@ class _StatusAppBar extends ConsumerWidget implements PreferredSizeWidget {
             ref.invalidate(statusItemsProvider);
           },
         ),
-        SizedBox(width: context.responsiveSize(4)),
+        SizedBox(width: context.responsiveSize(context.isIPad ? 8 : 4)),
       ],
     );
   }
@@ -201,26 +204,40 @@ class _StatusCardScrollView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (context.isIPad) {
-      final crossAxisCount = context.isLandscape ? 3 : 2;
-      return _StatusGrid(
-        items: items,
-        languageCode: languageCode,
-        crossAxisCount: crossAxisCount,
-      );
-    }
+    return
+      context.isIPad ?
+      ResponsiveContainer(
+        maxWidth: context.screenHeight/2 -50,
+        child: AlignedGridView.count(
+          padding: EdgeInsets.symmetric(
+            horizontal: context.responsiveSize(20),
+            vertical: context.responsiveSize(16),
+          ),
+          itemCount: items.length,
+          crossAxisSpacing: context.responsiveSize(20),
+          mainAxisSpacing: context.responsiveSize(20),
+          itemBuilder: (context, index) {
+            return _AnimatedStatusCard(
+              item: items[index],
+              index: index,
+              onTap: () {
+                Navigator.of(context).push(
+                  _StatusViewerRoute(
+                    screen: StatusViewerScreen(
+                      items: items,
+                      initialIndex: index,
+                    ),
+                  ),
+                );
+              },
+            );
+          }, crossAxisCount: 1,
+        ),
+      )
 
-    final width = MediaQuery.of(context).size.width;
-    if (width >= 900) {
-      return _StatusGrid(
-        items: items,
-        languageCode: languageCode,
-        crossAxisCount: width >= 1200 ? 3 : 2,
-      );
-    }
-
-    return ResponsiveContainer(
-      maxWidth: 480,
+          :
+      ResponsiveContainer(
+      maxWidth: context.isIPad ?context.responsiveSize (550) :context.responsiveSize (480),
       child: ListView.separated(
         padding: EdgeInsets.symmetric(
           horizontal: context.responsiveSize(20),
@@ -249,47 +266,6 @@ class _StatusCardScrollView extends StatelessWidget {
   }
 }
 
-class _StatusGrid extends StatelessWidget {
-  final List<StatusItem> items;
-  final String languageCode;
-  final int crossAxisCount;
-
-  const _StatusGrid({
-    required this.items,
-    required this.languageCode,
-    this.crossAxisCount = 2,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GridView.builder(
-      padding: EdgeInsets.all(context.responsiveSize(24)),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        crossAxisSpacing: context.responsiveSize(20),
-        mainAxisSpacing: context.responsiveSize(20),
-        childAspectRatio: 9 / 16,
-      ),
-      itemCount: items.length,
-      itemBuilder: (context, index) {
-        return _AnimatedStatusCard(
-          item: items[index],
-          index: index,
-          onTap: () {
-            Navigator.of(context).push(
-              _StatusViewerRoute(
-                screen: StatusViewerScreen(
-                  items: items,
-                  initialIndex: index,
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-}
 
 class _AnimatedStatusCard extends StatefulWidget {
   final StatusItem item;

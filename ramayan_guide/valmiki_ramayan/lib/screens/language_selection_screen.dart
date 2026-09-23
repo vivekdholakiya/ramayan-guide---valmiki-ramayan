@@ -98,7 +98,7 @@ class _LanguageSelectionScreenState
               leading: IconButton(
                 icon: Icon(
                   Icons.arrow_back_rounded,
-                  size: context.responsiveSize(24),
+                  size: context.responsiveSize(context.isIPad ? 28 : 24),
                 ),
                 onPressed: () => Navigator.of(context).maybePop(),
               ),
@@ -106,7 +106,7 @@ class _LanguageSelectionScreenState
                 AppStrings.get('settings_language', currentLangCode),
                 style: AppTypography.getStyle(
                   languageCode: currentLangCode,
-                  fontSize: context.responsiveFontSize(20),
+                  fontSize: context.responsiveFontSize(context.isIPad ? 28 : 20),
                   fontWeight: FontWeight.bold,
                   color: textColor,
                 ),
@@ -116,7 +116,7 @@ class _LanguageSelectionScreenState
       body: SafeArea(
         child: Center(
           child: ResponsiveContainer(
-            maxWidth: 560.0,
+            maxWidth: context.isIPad ? 680.0 : 560.0,
             child: SingleChildScrollView(
               padding: EdgeInsets.symmetric(
                 horizontal: context.responsiveSize(24.0),

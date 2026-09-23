@@ -82,7 +82,7 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_rounded,
-            size: context.responsiveSize(24),
+            size: context.responsiveSize( context.isIPad? 28 : 24),
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
@@ -90,7 +90,7 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
           categoryTitle,
           style: AppTypography.getStyle(
             languageCode: language.code,
-            fontSize: context.responsiveFontSize(18),
+            fontSize: context.responsiveFontSize( context.isIPad? 28 : 20),
             fontWeight: FontWeight.w600,
             color: isDark ? AppColors.textMutedIvory : AppColors.textMutedBrown,
           ),
@@ -103,29 +103,31 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
               curve: Curves.easeOutBack,
               child: Icon(
                 isFav ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-                size: context.responsiveSize(24),
+                size: context.responsiveSize( context.isIPad? 28 : 24),
                 color: isFav ? AppColors.deepSaffron : null,
               ),
             ),
-            tooltip: AppStrings.get('nav_favorites', language.code),
+            // tooltip: AppStrings.get('nav_favorites', language.code),
             onPressed: () {
               ref.read(favoritesProvider.notifier).toggleFavorite(widget.item);
+              setState(() {});
+
             },
           ),
           IconButton(
             icon: Icon(
               Icons.share_rounded,
-              size: context.responsiveSize(24),
+              size: context.responsiveSize( context.isIPad? 28 : 24),
             ),
-            tooltip: 'Share',
+            // tooltip: 'Share',
             onPressed: () => _shareItem(context, language.code),
           ),
           PopupMenuButton<AppFontSize>(
             icon: Icon(
               Icons.format_size_rounded,
-              size: context.responsiveSize(24),
+              size: context.responsiveSize( context.isIPad? 28 : 24),
             ),
-            tooltip: AppStrings.get('settings_font_size', language.code),
+            tooltip: "",
             onSelected: (size) {
               ref.read(fontSizeProvider.notifier).setFontSize(size);
             },
@@ -159,7 +161,7 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
       ),
       body: SafeArea(
         child: ResponsiveContainer(
-          maxWidth: context.isIPad ? 780.0 : 1280.0,
+          maxWidth: double.infinity,
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(
               horizontal: context.isIPad

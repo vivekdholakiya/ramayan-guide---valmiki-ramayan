@@ -29,7 +29,7 @@ class TermsOfUseScreen extends ConsumerWidget {
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_rounded,
-            size: context.responsiveSize(24),
+            size: context.responsiveSize(context.isIPad ? 28 : 24),
           ),
           onPressed: () => Navigator.of(context).maybePop(),
         ),
@@ -37,7 +37,7 @@ class TermsOfUseScreen extends ConsumerWidget {
           AppStrings.get('settings_terms', langCode),
           style: AppTypography.getStyle(
             languageCode: langCode,
-            fontSize: context.responsiveFontSize(20),
+            fontSize: context.responsiveFontSize(context.isIPad ? 28 : 20),
             fontWeight: FontWeight.bold,
             color: textColor,
           ),

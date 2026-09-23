@@ -334,12 +334,12 @@ class AdsControllerMain with WidgetsBindingObserver {
               colors: [Color(0xFF0B1A3A), Color(0xFF102C5A)],
             ),
             border: Border.all(
-              color: const Color(0xFFFFD36A).withOpacity(0.6),
+              color: const Color(0xFFFFD36A).withValues(alpha: 0.6),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.6),
+                color: Colors.black.withValues(alpha: 0.6),
                 blurRadius: 16,
                 offset: const Offset(0, 8),
               ),
@@ -407,7 +407,7 @@ class AdsControllerMain with WidgetsBindingObserver {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFFFFD36A).withOpacity(0.4),
+                          color: const Color(0xFFFFD36A).withValues(alpha: 0.4),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
@@ -483,7 +483,7 @@ class AdsControllerMain with WidgetsBindingObserver {
           // Reload ONLY after it was shown/dismissed.
           loadRewardedAd();
         },
-        onAdFailedToShowFullScreenContent: (_, __) {
+        onAdFailedToShowFullScreenContent: (_, error) {
           adShowed = true;
           _isRewardedReady = false;
           _rewardedAd?.dispose();
@@ -742,7 +742,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
       height: widget.height ?? _defaultHeight,
       margin: widget.margin,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.06),
+        color: Colors.white.withValues(alpha: 0.06),
         borderRadius: widget.borderRadius,
       ),
       alignment: Alignment.center,

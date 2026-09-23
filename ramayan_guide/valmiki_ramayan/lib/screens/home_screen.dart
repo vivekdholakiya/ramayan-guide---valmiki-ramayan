@@ -71,21 +71,14 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+
     final language = ref.watch(languageProvider);
     final continueReadingItem = ref.watch(continueReadingProvider);
     final recentlyViewed = ref.watch(historyProvider);
     final favorites = ref.watch(favoritesProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final width = MediaQuery.of(context).size.width;
 
-    int categoryCrossAxisCount = 2;
-    if (context.isIPad) {
-      categoryCrossAxisCount = context.isLandscape ? 4 : 3;
-    } else if (width >= 1100) {
-      categoryCrossAxisCount = 4;
-    } else if (width >= 650) {
-      categoryCrossAxisCount = 3;
-    }
+    int categoryCrossAxisCount = context.isIPad? 3 : 2;
 
     return Scaffold(
       appBar: const CustomAppBar(),
@@ -95,7 +88,7 @@ class HomeScreen extends ConsumerWidget {
           child: Column(
             children: [
               ResponsiveContainer(
-                maxWidth: context.isIPad ? 960.0 : 1280.0,
+                maxWidth: double.infinity,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

@@ -22,16 +22,8 @@ class CategoriesListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final language = ref.watch(languageProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final width = MediaQuery.of(context).size.width;
 
-    int crossAxisCount = 2;
-    if (context.isIPad) {
-      crossAxisCount = context.isLandscape ? 4 : 3;
-    } else if (width >= 1100) {
-      crossAxisCount = 4;
-    } else if (width >= 700) {
-      crossAxisCount = 3;
-    }
+    int crossAxisCount = context.isIPad? 3 : 2;
 
     return Scaffold(
       appBar: AppBar(
@@ -49,7 +41,7 @@ class CategoriesListScreen extends ConsumerWidget {
           AppStrings.get('nav_categories', language.code),
           style: AppTypography.getStyle(
             languageCode: language.code,
-            fontSize: context.responsiveFontSize(20),
+            fontSize: context.responsiveFontSize(context.isIPad ? 28 : 20),
             fontWeight: FontWeight.bold,
             color: isDark ? AppColors.textLightIvory : AppColors.textDarkBrown,
           ),
@@ -57,7 +49,7 @@ class CategoriesListScreen extends ConsumerWidget {
       ),
       body: SafeArea(
         child: ResponsiveContainer(
-          maxWidth: 1280.0,
+          maxWidth: double.infinity,
           child: MasonryGridView.count(
             padding: EdgeInsets.all(context.responsiveSize(16.0)),
             crossAxisCount: crossAxisCount,

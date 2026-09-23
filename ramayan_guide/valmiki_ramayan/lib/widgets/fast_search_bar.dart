@@ -64,14 +64,14 @@ class _FastSearchBarState extends State<FastSearchBar> {
         },
         style: AppTypography.getStyle(
           languageCode: widget.languageCode,
-          fontSize: context.responsiveFontSize(15.0),
+          fontSize: context.responsiveFontSize( context.isIPad? 18 : 15.0),
           color: isDark ? AppColors.textLightIvory : AppColors.textDarkBrown,
         ),
         decoration: InputDecoration(
           border: InputBorder.none,
           prefixIcon: Icon(
             Icons.search_rounded,
-            size: context.responsiveSize(24.0),
+            size: context.responsiveSize(context.isIPad ? 28.0 : 24.0),
             color: AppColors.deepSaffron,
           ),
           suffixIcon: AnimatedSwitcher(
@@ -85,7 +85,7 @@ class _FastSearchBarState extends State<FastSearchBar> {
                     key: const ValueKey('clear_btn'),
                     icon: Icon(
                       Icons.clear_rounded,
-                      size: context.responsiveSize(20),
+                      size: context.responsiveSize(context.isIPad ? 24 : 20),
                     ),
                     color: AppColors.textMutedBrown,
                     onPressed: () {
@@ -102,7 +102,7 @@ class _FastSearchBarState extends State<FastSearchBar> {
               : AppStrings.get('search_placeholder', widget.languageCode),
           hintStyle: AppTypography.getStyle(
             languageCode: widget.languageCode,
-            fontSize: context.responsiveFontSize(14.0),
+            fontSize: context.responsiveFontSize( context.isIPad? 18 : 15.0),
             color: isDark ? AppColors.textMutedIvory : AppColors.textMutedBrown,
           ),
           contentPadding: EdgeInsets.symmetric(

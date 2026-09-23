@@ -96,7 +96,7 @@ class _RamayanItemCardState extends ConsumerState<RamayanItemCard> {
                           widget.item.title,
                           style: AppTypography.getStyle(
                             languageCode: widget.languageCode,
-                            fontSize: context.responsiveFontSize(18.0),
+                            fontSize: context.responsiveFontSize( context.isIPad? 22 : 18.0),
                             fontWeight: FontWeight.bold,
                             color: isDark
                                 ? AppColors.textLightIvory
@@ -107,7 +107,6 @@ class _RamayanItemCardState extends ConsumerState<RamayanItemCard> {
                       SizedBox(width: context.responsiveSize(8.0)),
                       GestureDetector(
                         onTap: () {
-
                           ref
                               .read(favoritesProvider.notifier)
                               .toggleFavorite(widget.item);
@@ -121,7 +120,7 @@ class _RamayanItemCardState extends ConsumerState<RamayanItemCard> {
                             isFav
                                 ? Icons.bookmark_rounded
                                 : Icons.bookmark_border_rounded,
-                            size: context.responsiveSize(24.0),
+                            size: context.responsiveSize( context.isIPad? 28 : 24.0),
                             color: isFav
                                 ? AppColors.deepSaffron
                                 : AppColors.textMutedBrown,
@@ -133,11 +132,11 @@ class _RamayanItemCardState extends ConsumerState<RamayanItemCard> {
                   SizedBox(height: context.responsiveSize(8.0)),
                   Text(
                     formatDescription(previewText),
-                    maxLines: 3,
+                    maxLines: context.isIPad? 4 : 3,
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.getStyle(
                       languageCode: widget.languageCode,
-                      fontSize: context.responsiveFontSize(14.0),
+                      fontSize: context.responsiveFontSize( context.isIPad? 18 : 14.0),
                       fontWeight: FontWeight.normal,
                       color: isDark
                           ? AppColors.textMutedIvory
@@ -153,7 +152,7 @@ class _RamayanItemCardState extends ConsumerState<RamayanItemCard> {
                         AppStrings.get('read_more', widget.languageCode),
                         style: AppTypography.getStyle(
                           languageCode: widget.languageCode,
-                          fontSize: context.responsiveFontSize(13.0),
+                          fontSize: context.responsiveFontSize( context.isIPad? 15 : 13.0),
                           fontWeight: FontWeight.w600,
                           color: AppColors.deepSaffron,
                         ),

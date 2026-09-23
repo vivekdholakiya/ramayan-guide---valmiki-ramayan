@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_strings.dart';
 import '../constants/app_typography.dart';
@@ -43,7 +42,7 @@ class CategoryScreen extends ConsumerWidget {
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_rounded,
-            size: context.responsiveSize(24),
+            size: context.responsiveSize( context.isIPad? 28 : 24),
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
@@ -51,7 +50,7 @@ class CategoryScreen extends ConsumerWidget {
           categoryTitle,
           style: AppTypography.getStyle(
             languageCode: language.code,
-            fontSize: context.responsiveFontSize(20),
+            fontSize: context.responsiveFontSize( context.isIPad? 28 : 20),
             fontWeight: FontWeight.bold,
             color: isDark ? AppColors.textLightIvory : AppColors.textDarkBrown,
           ),
@@ -59,7 +58,7 @@ class CategoryScreen extends ConsumerWidget {
       ),
       body: SafeArea(
         child: ResponsiveContainer(
-          maxWidth: context.isIPad ? 1000.0 : 1280.0,
+          maxWidth:  double.infinity,
           child: Column(
             children: [
               StaggeredEntrance(
@@ -99,61 +98,29 @@ class CategoryScreen extends ConsumerWidget {
                       }
                     }
 
-                      if (context.isIPad) {
-                        final crossAxisCount = context.isLandscape ? 3 : 2;
-                        return MasonryGridView.count(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: context.responsiveSize(8.0),
-                            vertical: context.responsiveSize(12.0),
+                    return ListView.builder(
+                      padding: EdgeInsets.symmetric(
+                        vertical: context.responsiveSize(12.0),
+                      ),
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        final item = items[index];
+                        return StaggeredEntrance(
+                          index: index,
+                          child: RamayanItemCard(
+                            item: item,
+                            languageCode: language.code,
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => ItemDetailScreen(item: item),
+                                ),
+                              );
+                            },
                           ),
-                          crossAxisCount: crossAxisCount,
-                          mainAxisSpacing: context.responsiveSize(10.0),
-                          crossAxisSpacing: context.responsiveSize(10.0),
-                          itemCount: items.length,
-                          itemBuilder: (context, index) {
-                            final item = items[index];
-                            return StaggeredEntrance(
-                              index: index,
-                              child: RamayanItemCard(
-                                item: item,
-                                languageCode: language.code,
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => ItemDetailScreen(item: item),
-                                    ),
-                                  );
-                                },
-                              ),
-                            );
-                          },
                         );
-                      }
-
-                      return ListView.builder(
-                        padding: EdgeInsets.only(bottom: context.responsiveSize(24.0)),
-                        itemCount: items.length,
-                        itemBuilder: (context, index) {
-                          final item = items[index];
-                          return StaggeredEntrance(
-                            index: index,
-                            child: RamayanItemCard(
-                              item: item,
-                              languageCode: language.code,
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => ItemDetailScreen(item: item),
-                                  ),
-                                );
-                              },
-                            ),
-                          );
-                        },
-                      );
-
-
-
+                      },
+                    );
                   },
                   loading: () => const SkeletonItemList(itemCount: 6),
                   error: (err, stack) => EmptyStateView(

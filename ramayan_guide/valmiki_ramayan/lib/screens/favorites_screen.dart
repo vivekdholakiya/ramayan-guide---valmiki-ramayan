@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_strings.dart';
 import '../constants/app_typography.dart';
@@ -25,12 +24,14 @@ class FavoritesScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         leading: Padding(
-          padding: EdgeInsets.only(left: context.responsiveSize(16.0)),
+          padding: EdgeInsets.only(
+            left: context.responsiveSize(context.isIPad ? 20.0 : 16.0),
+          ),
           child: Center(
             child: Icon(
               Icons.bookmark_rounded,
               color: AppColors.deepSaffron,
-              size: context.responsiveSize(26),
+              size: context.responsiveSize(context.isIPad ? 28 : 26),
             ),
           ),
         ),
@@ -38,7 +39,7 @@ class FavoritesScreen extends ConsumerWidget {
           AppStrings.get('nav_favorites', language.code),
           style: AppTypography.getStyle(
             languageCode: language.code,
-            fontSize: context.responsiveFontSize(20),
+            fontSize: context.responsiveFontSize(context.isIPad ? 28 : 20),
             fontWeight: FontWeight.bold,
             color: isDark ? AppColors.textLightIvory : AppColors.textDarkBrown,
           ),
@@ -46,65 +47,38 @@ class FavoritesScreen extends ConsumerWidget {
       ),
       body: SafeArea(
         child: ResponsiveContainer(
-          maxWidth: context.isIPad ? 1000.0 : 1280.0,
+          maxWidth: double.infinity,
           child: favorites.isEmpty
               ? EmptyStateView(
                   languageCode: language.code,
                   type: EmptyStateType.noFavorites,
                 )
-              : context.isIPad
-                  ? MasonryGridView.count(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: context.responsiveSize(8.0),
-                        vertical: context.responsiveSize(12.0),
+              : ListView.builder(
+                  padding: EdgeInsets.symmetric(
+                    vertical: context.responsiveSize(12.0),
+                  ),
+                  itemCount: favorites.length,
+                  itemBuilder: (context, index) {
+                    final item = favorites[index];
+                    return StaggeredEntrance(
+                      index: index,
+                      child: RamayanItemCard(
+                        item: item,
+                        languageCode: language.code,
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => ItemDetailScreen(item: item),
+                            ),
+                          );
+                        },
                       ),
-                      crossAxisCount: context.isLandscape ? 3 : 2,
-                      mainAxisSpacing: context.responsiveSize(10.0),
-                      crossAxisSpacing: context.responsiveSize(10.0),
-                      itemCount: favorites.length,
-                      itemBuilder: (context, index) {
-                        final item = favorites[index];
-                        return StaggeredEntrance(
-                          index: index,
-                          child: RamayanItemCard(
-                            item: item,
-                            languageCode: language.code,
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => ItemDetailScreen(item: item),
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      },
-                    )
-                  : ListView.builder(
-                      padding: EdgeInsets.symmetric(
-                        vertical: context.responsiveSize(12.0),
-                      ),
-                      itemCount: favorites.length,
-                      itemBuilder: (context, index) {
-                        final item = favorites[index];
-                        return StaggeredEntrance(
-                          index: index,
-                          child: RamayanItemCard(
-                            item: item,
-                            languageCode: language.code,
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => ItemDetailScreen(item: item),
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      },
-                    ),
+                    );
+                  },
+                ),
         ),
       ),
     );
   }
 }
+

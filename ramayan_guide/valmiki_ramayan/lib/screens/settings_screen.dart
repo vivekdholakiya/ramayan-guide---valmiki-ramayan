@@ -56,16 +56,20 @@ class SettingsScreen extends ConsumerWidget {
       backgroundColor: bgColor,
       appBar: AppBar(
         leading: Padding(
-          padding: EdgeInsets.only(left: context.responsiveSize(16.0)),
+          padding: EdgeInsets.only(
+            left: context.responsiveSize(context.isIPad ? 20.0 : 16.0),
+          ),
           child: Center(
-            child: DiyaWidget(size: context.responsiveSize(28)),
+            child: DiyaWidget(
+              size: context.responsiveSize(context.isIPad ? 36 : 28),
+            ),
           ),
         ),
         title: Text(
           AppStrings.get('settings_title', langCode),
           style: AppTypography.getStyle(
             languageCode: langCode,
-            fontSize: context.responsiveFontSize(20),
+            fontSize: context.responsiveFontSize(context.isIPad ? 28 : 20),
             fontWeight: FontWeight.bold,
             color: textColor,
           ),
@@ -73,7 +77,7 @@ class SettingsScreen extends ConsumerWidget {
       ),
       body: SafeArea(
         child: ResponsiveContainer(
-          maxWidth: 800.0,
+          maxWidth: double.infinity,
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(
               horizontal: context.responsiveSize(20.0),

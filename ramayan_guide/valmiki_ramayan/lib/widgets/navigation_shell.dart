@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_strings.dart';
+import '../constants/app_typography.dart';
 import '../providers/language_provider.dart';
 import '../services/context_extensions.dart';
-import 'diya_painter.dart';
 
 class NavigationShell extends ConsumerWidget {
   final int selectedIndex;
@@ -23,6 +23,15 @@ class NavigationShell extends ConsumerWidget {
     final language = ref.watch(languageProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    final selectedColor = isDark ? AppColors.brightSaffron : AppColors.deepSaffron;
+    final unselectedColor = isDark ? AppColors.textMutedIvory : AppColors.textMutedBrown;
+    final selectedIconSize = context.isIPad ? 32.0 : 26.0;
+    final unselectedIconSize = context.isIPad ? 28.0 : 24.0;
+    final selectedFontSize = context.isIPad ? 16.0 : 12.0;
+    final unselectedFontSize = context.isIPad ? 14.0 : 11.0;
+    final barHeight = context.isIPad ? 86.0 : 70.0;
+    final topRadius = Radius.circular(context.isIPad ? 26.0 : 20.0);
+
     final destinations = [
       NavigationDestination(
         icon: const Icon(Icons.home_outlined),
@@ -34,7 +43,6 @@ class NavigationShell extends ConsumerWidget {
         selectedIcon: const Icon(Icons.grid_view_rounded),
         label: AppStrings.get('nav_categories', language.code),
       ),
-      // Status tab — new addition
       NavigationDestination(
         icon: const Icon(Icons.auto_awesome_outlined),
         selectedIcon: const Icon(Icons.auto_awesome_rounded),
@@ -52,78 +60,84 @@ class NavigationShell extends ConsumerWidget {
       ),
     ];
 
+    final navigationBarTheme = NavigationBarThemeData(
+      height: barHeight,
+      indicatorColor: selectedColor.withValues(alpha: isDark ? 0.22 : 0.15),
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return IconThemeData(
+            size: selectedIconSize,
+            color: selectedColor,
+          );
+        }
+        return IconThemeData(
+          size: unselectedIconSize,
+          color: unselectedColor,
+        );
+      }),
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        final isSelected = states.contains(WidgetState.selected);
+        return AppTypography.getStyle(
+          languageCode: language.code,
+          fontSize: isSelected ? selectedFontSize : unselectedFontSize,
+          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+          color: isSelected ? selectedColor : unselectedColor,
+        );
+      }),
+    );
+
     return Scaffold(
       body: child,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: isDark
-              ? AppColors.darkCard
-              : AppColors.parchmentCard,
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(20),
-            bottom: Radius.circular(0),
+          color: isDark ? AppColors.darkCard : AppColors.parchmentCard,
+          borderRadius: BorderRadius.vertical(
+            top: topRadius,
+            bottom: Radius.zero,
           ),
-          border: Border(top: BorderSide(color: isDark
-              ? AppColors.darkBorder
-              : AppColors.parchmentBorder,),
-            right: BorderSide(color: isDark
-                ? AppColors.darkBorder
-                : AppColors.parchmentBorder,),
-            left: BorderSide(color: isDark
-                ? AppColors.darkBorder
-                : AppColors.parchmentBorder,),
+          border: Border(
+            top: BorderSide(
+              color: isDark ? AppColors.darkBorder : AppColors.parchmentBorder,
+            ),
+            right: BorderSide(
+              color: isDark ? AppColors.darkBorder : AppColors.parchmentBorder,
+            ),
+            left: BorderSide(
+              color: isDark ? AppColors.darkBorder : AppColors.parchmentBorder,
+            ),
           ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 16,
+              blurRadius: context.isIPad ? 24 : 16,
               offset: const Offset(0, -2),
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(20),
-            bottom: Radius.circular(0),
+          borderRadius: BorderRadius.vertical(
+            top: topRadius,
+            bottom: Radius.zero,
           ),
-          child: NavigationBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            height: context.responsiveSize(72),
-            selectedIndex: selectedIndex,
-            onDestinationSelected: onDestinationSelected,
-            labelBehavior:
-            NavigationDestinationLabelBehavior.alwaysShow,
-            indicatorColor: Theme.of(context)
-                .colorScheme
-                .primary
-                .withValues(alpha: 0.15),
-
-
-            // // --- Icon Styling ---
-            // selectedIconTheme: const IconThemeData(
-            //   size: 30, // Increased size for selected icon
-            //   color: Colors.blueAccent,
-            // ),
-            // unselectedIconTheme: const IconThemeData(
-            //   size: 24, // Standard size for unselected
-            //   color: Colors.grey,
-            // ),
-            //
-            // // --- Label Styling ---
-            // selectedLabelStyle: const TextStyle(
-            //   fontSize: 14,
-            //   fontWeight: FontWeight.bold,
-            //   letterSpacing: 0.5,
-            // ),
-            // unselectedLabelStyle: const TextStyle(
-            //   fontSize: 12,
-            //   fontWeight: FontWeight.normal,
-            // ),
-            destinations: destinations,
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              navigationBarTheme: navigationBarTheme,
+            ),
+            child: NavigationBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              height: barHeight,
+              indicatorColor: Colors.transparent,
+              labelPadding: EdgeInsets.only(top: context.responsiveSize(4)),
+              selectedIndex: selectedIndex,
+              onDestinationSelected: onDestinationSelected,
+              labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+              destinations: destinations,
+            ),
           ),
         ),
       ),
     );
   }
 }
+

@@ -32,8 +32,6 @@ const String openAdIdIOS = 'ca-app-pub-8791243074795894/7570622346';
 const String nativeAdIdIOS = 'ca-app-pub-8791243074795894/3284621923';
 
 
-
-
 String get appUrl {
 
   if (defaultTargetPlatform == TargetPlatform.iOS) {

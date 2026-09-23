@@ -289,7 +289,7 @@ class _BannerImage extends ConsumerWidget {
     final localFileAsync = ref.watch(localImageFileProvider(imageUrl));
 
     return AspectRatio(
-      aspectRatio: 16 / 9,
+      aspectRatio: context.isIPad ? (16/7):(16 /9),
       child: localFileAsync.when(
         data: (file) {
           if (file != null && file.existsSync()) {
@@ -323,7 +323,7 @@ class _BannerImage extends ConsumerWidget {
 
   Widget _fallback(BuildContext context) {
     return AspectRatio(
-      aspectRatio: 16 / 9,
+      aspectRatio: context.isIPad ? (16/7):(16 /9),
       child: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -646,7 +646,7 @@ class _ShimmerBanner extends StatelessWidget {
       baseColor: baseColor,
       highlightColor: highlightColor,
       child: AspectRatio(
-        aspectRatio: 16 / 9,
+        aspectRatio: context.isIPad ? (16/7):(16 /9),
         child: Container(
           decoration: BoxDecoration(
             color: baseColor,
@@ -676,7 +676,7 @@ class _EmptyBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AspectRatio(
-      aspectRatio: 16 / 9,
+      aspectRatio: context.isIPad ? (16/7):(16 /9),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(context.responsiveSize(24)),

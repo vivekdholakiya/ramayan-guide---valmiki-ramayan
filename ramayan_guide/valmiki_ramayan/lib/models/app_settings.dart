@@ -37,9 +37,9 @@ enum AppThemeMode {
 }
 
 enum AppFontSize {
-  small(14.0, 1.4, 'small'),
-  medium(17.0, 1.6, 'medium'),
-  large(21.0, 1.75, 'large');
+  small(  14.0, 1.4, 'small'),
+  medium(18.0, 1.6, 'medium'),
+  large(24.0, 1.75, 'large');
 
   final double bodyFontSize;
   final double lineHeight;
@@ -54,3 +54,22 @@ enum AppFontSize {
     );
   }
 }
+
+// enum AppFontSizeIpad {
+//   small(  18.0, 1.4, 'small'),
+//   medium(22.0, 1.6, 'medium'),
+//   large(28.0, 1.75, 'large');
+//
+//   final double bodyFontSize;
+//   final double lineHeight;
+//   final String key;
+//
+//   const AppFontSizeIpad(this.bodyFontSize, this.lineHeight, this.key);
+//
+//   static AppFontSizeIpad fromKey(String key) {
+//     return AppFontSizeIpad.values.firstWhere(
+//       (f) => f.key == key,
+//       orElse: () => AppFontSizeIpad.medium,
+//     );
+//   }
+// }

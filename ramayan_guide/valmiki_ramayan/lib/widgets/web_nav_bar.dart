@@ -125,7 +125,7 @@ class WebDesktopNavBar extends ConsumerWidget implements PreferredSizeWidget {
                     Icons.language_rounded,
                     size: context.responsiveSize(24),
                   ),
-                  tooltip: AppStrings.get('settings_language', language.code),
+                  // tooltip: AppStrings.get('settings_language', language.code),
                   onSelected: (selectedLang) {
                     ref.read(languageProvider.notifier).setLanguage(selectedLang);
                   },
@@ -161,7 +161,7 @@ class WebDesktopNavBar extends ConsumerWidget implements PreferredSizeWidget {
                     size: context.responsiveSize(24),
                     color: isDark ? AppColors.warmGold : AppColors.deepSaffron,
                   ),
-                  tooltip: AppStrings.get('settings_theme', language.code),
+                  // tooltip: AppStrings.get('settings_theme', language.code),
                   onPressed: () {
                     final nextMode =
                         isDark ? AppThemeMode.light : AppThemeMode.dark;

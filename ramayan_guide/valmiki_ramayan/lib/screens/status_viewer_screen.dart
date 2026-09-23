@@ -142,9 +142,11 @@ class _StatusViewerScreenState extends ConsumerState<StatusViewerScreen>
                 final item = widget.items[index];
                 return SafeArea(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: context.responsiveSize(16),
-                      vertical: context.responsiveSize(12),
+                    padding: EdgeInsets.only(
+                      left: context.responsiveSize(16),
+                      right: context.responsiveSize(16),
+                      top: context.responsiveSize(50),
+                      bottom: context.responsiveSize(16),
                     ),
                     child: Center(
                       child: RepaintBoundary(

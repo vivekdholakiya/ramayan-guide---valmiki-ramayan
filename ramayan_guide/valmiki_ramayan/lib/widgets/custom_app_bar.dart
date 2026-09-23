@@ -37,21 +37,25 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
           ? IconButton(
               icon: Icon(
                 Icons.arrow_back_rounded,
-                size: context.responsiveSize(24),
+                size: context.responsiveSize(context.isIPad ? 28 : 24),
               ),
               onPressed: () => Navigator.of(context).maybePop(),
             )
           : Padding(
-              padding: EdgeInsets.only(left: context.responsiveSize(16.0)),
+              padding: EdgeInsets.only(
+                left: context.responsiveSize(context.isIPad ? 20.0 : 16.0),
+              ),
               child: Center(
-                child: DiyaWidget(size: context.responsiveSize(28)),
+                child: DiyaWidget(
+                  size: context.responsiveSize(context.isIPad ? 36 : 28),
+                ),
               ),
             ),
       title: Text(
         appTitle,
         style: AppTypography.getStyle(
           languageCode: language.code,
-          fontSize: context.responsiveFontSize(18),
+          fontSize: context.responsiveFontSize(context.isIPad ? 28 : 20),
           fontWeight: FontWeight.bold,
           color: isDark ? AppColors.textLightIvory : AppColors.textDarkBrown,
         ),
@@ -61,17 +65,17 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
           IconButton(
             icon: Icon(
               Icons.search_rounded,
-              size: context.responsiveSize(24),
+              size: context.responsiveSize(context.isIPad ? 28 : 24),
             ),
-            tooltip: AppStrings.get('search_placeholder', language.code),
+            // tooltip: AppStrings.get('search_placeholder', language.code),
             onPressed: onSearchPressed,
           ),
         IconButton(
           icon: Icon(
             Icons.language_rounded,
-            size: context.responsiveSize(24),
+            size: context.responsiveSize(context.isIPad ? 28 : 24),
           ),
-          tooltip: AppStrings.get('nav_settings', language.code),
+          // tooltip: AppStrings.get('nav_settings', language.code),
           onPressed: () {
             Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => LanguageSelectionScreen(isFromSettings: true,)),
@@ -81,10 +85,10 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
         IconButton(
           icon: Icon(
             isDark ? Icons.wb_sunny_rounded : Icons.nightlight_round,
-            size: context.responsiveSize(24),
+            size: context.responsiveSize(context.isIPad ? 28 : 24),
             color: isDark ? AppColors.warmGold : AppColors.deepSaffron,
           ),
-          tooltip: AppStrings.get('settings_theme', language.code),
+          // tooltip: AppStrings.get('settings_theme', language.code),
           onPressed: () {
             final nextMode = isDark ? AppThemeMode.light : AppThemeMode.dark;
             ref.read(themeProvider.notifier).setThemeMode(nextMode);
@@ -94,12 +98,12 @@ class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
           IconButton(
             icon: Icon(
               Icons.settings_rounded,
-              size: context.responsiveSize(24),
+              size: context.responsiveSize(context.isIPad ? 28 : 24),
             ),
-            tooltip: AppStrings.get('nav_settings', language.code),
+            // tooltip: AppStrings.get('nav_settings', language.code),
             onPressed: onSettingsPressed,
           ),
-        SizedBox(width: context.responsiveSize(4)),
+        SizedBox(width: context.responsiveSize(context.isIPad ? 8 : 4)),
       ],
     );
   }
