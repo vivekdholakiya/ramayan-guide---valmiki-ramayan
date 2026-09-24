@@ -5,12 +5,12 @@ import '../constants/app_strings.dart';
 import '../constants/app_typography.dart';
 import '../providers/favorites_provider.dart';
 import '../providers/language_provider.dart';
+import '../providers/story_access_provider.dart';
 import '../services/context_extensions.dart';
 import '../widgets/animated_interactions.dart';
 import '../widgets/empty_state_view.dart';
 import '../widgets/ramayan_item_card.dart';
 import '../widgets/responsive_container.dart';
-import 'item_detail_screen.dart';
 
 class FavoritesScreen extends ConsumerWidget {
   const FavoritesScreen({super.key});
@@ -18,6 +18,7 @@ class FavoritesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final language = ref.watch(languageProvider);
+    final storyAccess = ref.watch(storyAccessProvider);
     final favorites = ref.watch(favoritesProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -60,18 +61,18 @@ class FavoritesScreen extends ConsumerWidget {
                   itemCount: favorites.length,
                   itemBuilder: (context, index) {
                     final item = favorites[index];
+                    final isLocked = storyAccess.isStoryLocked(item);
                     return StaggeredEntrance(
                       index: index,
                       child: RamayanItemCard(
                         item: item,
                         languageCode: language.code,
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => ItemDetailScreen(item: item),
-                            ),
-                          );
-                        },
+                        isLocked: isLocked,
+                        onTap: () => StoryAccessHelper.openStory(
+                          context: context,
+                          ref: ref,
+                          item: item,
+                        ),
                       ),
                     );
                   },

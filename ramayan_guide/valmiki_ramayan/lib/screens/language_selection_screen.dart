@@ -292,18 +292,13 @@ class _LanguageSelectionScreenState
                                           width: context.responsiveSize(2),
                                         ),
                                       ),
-                                      child: AnimatedScale(
-                                        scale: isSelected ? 1.0 : 0.0,
-                                        duration: const Duration(milliseconds: 200),
-                                        curve: Curves.easeOutBack,
-                                        child: isSelected
-                                            ? Icon(
-                                                Icons.check_rounded,
-                                                size: context.responsiveSize(16),
-                                                color: Colors.white,
-                                              )
-                                            : null,
-                                      ),
+                                      child: isSelected
+                                          ? Icon(
+                                              Icons.check_rounded,
+                                              size: context.responsiveSize(16),
+                                              color: Colors.white,
+                                            )
+                                          : null,
                                     ),
                                   ],
                                 ),

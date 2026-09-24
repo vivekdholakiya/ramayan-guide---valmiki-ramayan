@@ -3,6 +3,7 @@ import '../models/ramayan_item.dart';
 import '../services/firestore_service.dart';
 
 import 'offline_provider.dart';
+import 'story_access_provider.dart';
 
 final firestoreServiceProvider = Provider<FirestoreService>((ref) {
   return FirestoreService();
@@ -30,7 +31,7 @@ class CategoryQueryParam {
   int get hashCode => language.hashCode ^ categoryId.hashCode;
 }
 
-int _getKandaOrderIndex(RamayanItem item) {
+int getKandaOrderIndex(RamayanItem item) {
   final titleLower = item.title.toLowerCase();
   final idLower = item.id.toLowerCase();
   final text = '$idLower $titleLower';
@@ -118,15 +119,27 @@ final categoryItemsProvider = FutureProvider.family
     param.categoryId,
   );
 
+  final List<RamayanItem> resultList;
   // For Seven Kandas category ('sath_kand'), ensure strict 1..7 chronological order
   if (param.categoryId == 'sath_kand') {
     final sortedItems = List<RamayanItem>.from(items);
     sortedItems.sort((a, b) =>
-        _getKandaOrderIndex(a).compareTo(_getKandaOrderIndex(b)));
-    return sortedItems;
+        getKandaOrderIndex(a).compareTo(getKandaOrderIndex(b)));
+    resultList = sortedItems;
+  } else {
+    resultList = items;
   }
 
-  return items;
+  if (resultList.isNotEmpty) {
+    Future.microtask(() {
+      ref.read(storyAccessProvider.notifier).registerCategoryOrder(
+            param.categoryId,
+            resultList.map((i) => i.id).toList(),
+          );
+    });
+  }
+
+  return resultList;
 });
 
 /// Search query string state for active category view

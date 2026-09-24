@@ -2,12 +2,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+
 import 'firebase_options.dart';
 
 import 'providers/language_provider.dart';
 import 'providers/offline_provider.dart';
 import 'providers/theme_provider.dart';
 import 'screens/splash_screen.dart';
+import 'services/ads.dart';
 import 'services/hive_storage_service.dart';
 import 'services/local_storage_service.dart';
 import 'theme/app_theme.dart';
@@ -21,6 +24,17 @@ void main() async {
     );
   } catch (e) {
     debugPrint('Firebase initialization notice: $e');
+  }
+
+  try {
+    await MobileAds.instance.initialize();
+    AdsControllerMain.markMobileAdsInitialized();
+    // Reference adsControllerVar so lifecycle observer and ad preloads start
+    adsControllerVar.loadAppOpenAd();
+    adsControllerVar.loadInterstitialAd();
+    adsControllerVar.loadRewardedAd();
+  } catch (e) {
+    debugPrint('MobileAds initialization error: $e');
   }
 
   final localStorageService = await LocalStorageService.init();

@@ -27,7 +27,7 @@ class NavigationShell extends ConsumerWidget {
     final unselectedColor = isDark ? AppColors.textMutedIvory : AppColors.textMutedBrown;
     final selectedIconSize = context.isIPad ? 32.0 : 26.0;
     final unselectedIconSize = context.isIPad ? 28.0 : 24.0;
-    final selectedFontSize = context.isIPad ? 16.0 : 12.0;
+    final selectedFontSize = context.isIPad ? 18.0 : 12.0;
     final unselectedFontSize = context.isIPad ? 14.0 : 11.0;
     final barHeight = context.isIPad ? 86.0 : 70.0;
     final topRadius = Radius.circular(context.isIPad ? 26.0 : 20.0);

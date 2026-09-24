@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import '../constants/app_colors.dart';
 import '../constants/util.dart';
+import '../widgets/diya_painter.dart';
 import 'context_extensions.dart';
 
 final AdsControllerMain adsControllerVar = AdsControllerMain(
@@ -91,7 +93,6 @@ class AdsControllerMain with WidgetsBindingObserver {
   AppOpenAd? appOpenAd;
   bool _isLoadingAppOpenAd = false;
   DateTime? _appOpenLoadedAt;
-  DateTime? _lastAppOpenShownAt;
   bool _isAppOpenAdShowing = false;
   bool _hasHadFirstResume = false;
   int _appOpenLoadAttempts = 0;
@@ -99,9 +100,6 @@ class AdsControllerMain with WidgetsBindingObserver {
   /// Google recommends not showing a cached App Open ad once it's older
   /// than ~4 hours.
   static const Duration _appOpenMaxAge = Duration(hours: 4);
-
-  /// Minimum time between two App Open ad impressions.
-  static const Duration appOpenCooldown = Duration(hours: 4);
 
   bool get _isAppOpenAdExpired {
     if (_appOpenLoadedAt == null) return true;
@@ -173,11 +171,6 @@ class AdsControllerMain with WidgetsBindingObserver {
       return;
     }
 
-    if (_lastAppOpenShownAt != null &&
-        DateTime.now().difference(_lastAppOpenShownAt!) < appOpenCooldown) {
-      return; // respect the cooldown between impressions
-    }
-
     if (!_canShowAnyFullScreenAd) {
       return; // an Interstitial/Rewarded ad is showing or just closed
     }
@@ -191,7 +184,6 @@ class AdsControllerMain with WidgetsBindingObserver {
       onAdDismissedFullScreenContent: (ad) {
         _isAppOpenAdShowing = false;
         adShowed = true;
-        _lastAppOpenShownAt = DateTime.now();
         ad.dispose();
         appOpenAd = null;
         loadAppOpenAd(); // always preload the next one right away
@@ -211,8 +203,6 @@ class AdsControllerMain with WidgetsBindingObserver {
   InterstitialAd? _interstitialAd;
   bool _isInterstitialReady = false;
   bool _isInterstitialLoading = false;
-  DateTime? _lastInterstitialShownAt;
-  static const Duration _interstitialCooldown = Duration(minutes: 2);
 
   Future<void> loadInterstitialAd() async {
     if (!await _ensureMobileAdsReady()) return;
@@ -237,15 +227,6 @@ class AdsControllerMain with WidgetsBindingObserver {
   }
 
   void showInterstititalAd(BuildContext context, {VoidCallback? onRoute}) {
-    final now = DateTime.now();
-
-    if (_lastInterstitialShownAt != null &&
-        now.difference(_lastInterstitialShownAt!) < _interstitialCooldown) {
-      // Frequency cap: don't show and don't trigger new load.
-      onRoute?.call();
-      return;
-    }
-
     // Cross-format guard: never overlap App Open/Rewarded, never show
     // within 60s of another full-screen ad (e.g. right after App Open).
     if (!_canShowAnyFullScreenAd) {
@@ -260,30 +241,44 @@ class AdsControllerMain with WidgetsBindingObserver {
       return;
     }
 
-    _interstitialAd
-      ?..fullScreenContentCallback = FullScreenContentCallback(
+    _interstitialAd!
+      ..fullScreenContentCallback = FullScreenContentCallback(
         onAdShowedFullScreenContent: (ad) {
           adShowed = false;
-          _lastInterstitialShownAt = DateTime.now();
           _lastFullScreenAdShownAt = DateTime.now();
-          onRoute?.call();
         },
         onAdDismissedFullScreenContent: (ad) async {
           adShowed = true;
+          _isInterstitialReady = false;
           _interstitialAd?.dispose();
           _interstitialAd = null;
           // Reload ONLY after it was shown/dismissed.
           loadInterstitialAd();
+          onRoute?.call();
         },
         onAdFailedToShowFullScreenContent: (ad, error) async {
           adShowed = true;
+          _isInterstitialReady = false;
           _interstitialAd?.dispose();
           _interstitialAd = null;
+          loadInterstitialAd();
           onRoute?.call();
-          // Do not reload here; next show attempt will trigger a load.
         },
       )
       ..show();
+  }
+
+  int _completedStoryViews = 0;
+  int get completedStoryViews => _completedStoryViews;
+
+  /// Tracks story/chapter views and triggers an Interstitial ad on every 3rd completed view.
+  void onStoryExit(BuildContext context, {required VoidCallback onContinue}) {
+    _completedStoryViews++;
+    if (_completedStoryViews % 3 == 0) {
+      showInterstititalAd(context, onRoute: onContinue);
+    } else {
+      onContinue();
+    }
   }
 
   // ── Rewarded ─────────────────────────────────────────────────
@@ -313,139 +308,240 @@ class AdsControllerMain with WidgetsBindingObserver {
     );
   }
 
-  /// Shows a confirmation dialog, then plays rewarded ad.
-  /// If the ad is unavailable, calls [onRewardGranted] directly (no blocking).
+  /// Shows the existing confirmation dialog, then plays rewarded ad.
+  /// If user watches and earns reward, calls [onRewardGranted].
+  /// If ad is not ready or fails, does NOT grant reward, notifies user, and reloads.
   void showRewardedAd(
     BuildContext context, {
+    String? title,
+    String? description,
+    String? watchButtonText,
+    String? maybeLaterText,
     required VoidCallback onRewardGranted,
   }) {
     showDialog(
       context: context,
       barrierDismissible: true,
-      builder: (ctx) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: EdgeInsets.all(ctx.responsiveSize(20)),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Color(0xFF0B1A3A), Color(0xFF102C5A)],
-            ),
-            border: Border.all(
-              color: const Color(0xFFFFD36A).withValues(alpha: 0.6),
-              width: 1.5,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.6),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
-              ),
-            ],
+      builder: (ctx) {
+        final isDark = Theme.of(ctx).brightness == Brightness.dark;
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.symmetric(
+            horizontal: ctx.responsiveSize(ctx.isIPad ? 60 : 24),
+            vertical: ctx.responsiveSize(24),
           ),
-          child: Padding(
-            padding: EdgeInsets.all(ctx.responsiveSize(20)),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    SizedBox(width: ctx.responsiveSize(24)),
-                    Expanded(
-                      child: Text(
-                        "DivineReward[selectedLanguage]",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: ctx.responsiveFontSize(22),
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFFFFD36A),
-                          letterSpacing: 0.8,
-                        ),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () => Navigator.pop(ctx),
-                      child: Icon(
-                        Icons.close,
-                        color: Colors.white70,
-                        size: ctx.responsiveSize(24),
-                      ),
-                    ),
-                  ],
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: ctx.responsiveSize(ctx.isIPad ? 460 : 380),
+            ),
+            decoration: BoxDecoration(
+              color: isDark ? AppColors.darkCard : AppColors.parchmentCard,
+              borderRadius: BorderRadius.circular(ctx.responsiveSize(24)),
+              border: Border.all(
+                color: AppColors.warmGold.withValues(alpha: isDark ? 0.45 : 0.65),
+                width: ctx.responsiveSize(1.5),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.55 : 0.12),
+                  blurRadius: ctx.responsiveSize(24),
+                  offset: Offset(0, ctx.responsiveSize(8)),
                 ),
-                SizedBox(height: ctx.responsiveSize(12)),
-                Text(
-                 "RewardedAdsDes[selectedLanguage]",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: ctx.responsiveFontSize(15),
-                    height: 1.5,
-                  ),
-                ),
-                SizedBox(height: ctx.responsiveSize(20)),
-                // Watch & Unlock button
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    _showRewardedAdInternal(
-                      context,
-                      onRewardGranted: onRewardGranted,
-                    );
-                  },
-                  child: Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(
-                      vertical: ctx.responsiveSize(14),
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFFFD36A), Color(0xFFFFB700)],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFFFFD36A).withValues(alpha: 0.4),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.play_circle_fill,
-                          color: Color(0xFF0B1A3A),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          "WatchUnlock[selectedLanguage]",
-                          style: TextStyle(
-                            fontSize: ctx.responsiveFontSize(18),
-                            fontWeight: FontWeight.w700,
-                            color: const Color(0xFF0B1A3A),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: ctx.responsiveSize(10)),
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: Text(
-                    "MaybeLater[selectedLanguage]",
-                    style: const TextStyle(color: Colors.white60),
-                  ),
+                BoxShadow(
+                  color: AppColors.warmGold.withValues(alpha: isDark ? 0.15 : 0.2),
+                  blurRadius: ctx.responsiveSize(12),
+                  offset: Offset.zero,
                 ),
               ],
             ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: ctx.responsiveSize(22),
+                vertical: ctx.responsiveSize(24),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header Row with Diya and Close Icon
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: GestureDetector(
+                          onTap: () => Navigator.pop(ctx),
+                          child: Container(
+                            padding: EdgeInsets.all(ctx.responsiveSize(6)),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: (isDark ? Colors.white : Colors.black)
+                                  .withValues(alpha: 0.06),
+                            ),
+                            child: Icon(
+                              Icons.close_rounded,
+                              color: isDark
+                                  ? AppColors.textMutedIvory
+                                  : AppColors.textMutedBrown,
+                              size: ctx.responsiveSize(20),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Column(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(ctx.responsiveSize(12)),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AppColors.deepSaffron.withValues(alpha: 0.12),
+                              border: Border.all(
+                                color: AppColors.warmGold.withValues(alpha: 0.4),
+                                width: ctx.responsiveSize(1),
+                              ),
+                            ),
+                            child: DiyaWidget(size: ctx.responsiveSize(36)),
+                          ),
+                          SizedBox(height: ctx.responsiveSize(14)),
+                          Text(
+                            title ?? "Unlock Feature",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: ctx.responsiveFontSize(ctx.isIPad ? 24 : 20),
+                              fontWeight: FontWeight.bold,
+                              color: isDark
+                                  ? AppColors.textLightIvory
+                                  : AppColors.textDarkBrown,
+                              letterSpacing: 0.4,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: ctx.responsiveSize(14)),
+                  // Sacred ornamental divider
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 1,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                AppColors.warmGold.withValues(alpha: 0.0),
+                                AppColors.warmGold.withValues(alpha: 0.6),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: ctx.responsiveSize(8.0),
+                        ),
+                        child: Icon(
+                          Icons.auto_awesome_rounded,
+                          size: ctx.responsiveSize(14),
+                          color: AppColors.warmGold,
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          height: 1,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                AppColors.warmGold.withValues(alpha: 0.6),
+                                AppColors.warmGold.withValues(alpha: 0.0),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: ctx.responsiveSize(16)),
+                  Text(
+                    description ?? "Watch a short ad to continue.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: isDark
+                          ? AppColors.textMutedIvory
+                          : AppColors.textMutedBrown,
+                      fontSize: ctx.responsiveFontSize(ctx.isIPad ? 17 : 14.5),
+                      height: 1.5,
+                    ),
+                  ),
+                  SizedBox(height: ctx.responsiveSize(22)),
+                  // Watch & Unlock button with saffron/gold theme gradient
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pop(ctx);
+                      _showRewardedAdInternal(
+                        context,
+                        onRewardGranted: onRewardGranted,
+                      );
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(
+                        vertical: ctx.responsiveSize(14),
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(
+                          ctx.responsiveSize(16),
+                        ),
+                        gradient: AppColors.saffronGoldGradient,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.deepSaffron.withValues(alpha: 0.35),
+                            blurRadius: ctx.responsiveSize(12),
+                            offset: Offset(0, ctx.responsiveSize(4)),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.play_circle_fill_rounded,
+                            color: Colors.white,
+                            size: ctx.responsiveSize(22),
+                          ),
+                          SizedBox(width: ctx.responsiveSize(8)),
+                          Text(
+                            watchButtonText ?? "Watch Ads",
+                            style: TextStyle(
+                              fontSize: ctx.responsiveFontSize(ctx.isIPad ? 19 : 16.5),
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: ctx.responsiveSize(10)),
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: Text(
+                      maybeLaterText ?? "Maybe Later",
+                      style: TextStyle(
+                        color: isDark
+                            ? AppColors.textMutedIvory.withValues(alpha: 0.8)
+                            : AppColors.textMutedBrown.withValues(alpha: 0.8),
+                        fontSize: ctx.responsiveFontSize(14),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -455,17 +551,13 @@ class AdsControllerMain with WidgetsBindingObserver {
   }) {
     if (!_isRewardedReady || _rewardedAd == null) {
       adShowed = true;
-      // Ad not ready — grant access anyway so user isn't blocked
       loadRewardedAd();
-      onRewardGranted();
+      showAdNotReady(context);
       return;
     }
 
-    // Cross-format guard: extremely rare (App Open showing at the exact
-    // moment the user tapped "watch ad"). Since the user explicitly asked
-    // for this reward, never leave them blocked — grant it directly.
     if (!_canShowAnyFullScreenAd) {
-      onRewardGranted();
+      showAdNotReady(context);
       return;
     }
 
@@ -480,7 +572,6 @@ class AdsControllerMain with WidgetsBindingObserver {
           _isRewardedReady = false;
           _rewardedAd?.dispose();
           _rewardedAd = null;
-          // Reload ONLY after it was shown/dismissed.
           loadRewardedAd();
         },
         onAdFailedToShowFullScreenContent: (_, error) {
@@ -488,8 +579,8 @@ class AdsControllerMain with WidgetsBindingObserver {
           _isRewardedReady = false;
           _rewardedAd?.dispose();
           _rewardedAd = null;
-          // Do not reload here; next attempt will trigger a load.
-          onRewardGranted(); // fallback
+          loadRewardedAd();
+          showAdNotReady(context);
         },
       )
       ..show(
@@ -551,10 +642,13 @@ class AdsControllerMain with WidgetsBindingObserver {
     }, (_) {});
   }
 
-  void showAdNotReady(BuildContext context) {
+  void showAdNotReady(BuildContext context, [String? message]) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text("NoAds[selectedLanguage]", textAlign: TextAlign.center),
+        content: Text(
+          message ?? "Ad not available right now. Please try again.",
+          textAlign: TextAlign.center,
+        ),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -588,7 +682,7 @@ class _AdsBannerWidgetState extends State<AdsBannerWidget> {
     super.initState();
 
     _bannerAd = BannerAd(
-      adUnitId: bannerAdId,
+      adUnitId: adsControllerVar.bannerId,
       size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(
@@ -673,7 +767,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
 
   void _loadAd() {
     NativeAd(
-      adUnitId: nativeAdId,
+      adUnitId: adsControllerVar.nativeAdId,
       request: const AdRequest(),
       nativeTemplateStyle: NativeTemplateStyle(
         templateType: widget.templateType == NativeAdTemplateType.small

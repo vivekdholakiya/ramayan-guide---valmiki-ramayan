@@ -372,13 +372,13 @@ class _QuoteContent extends StatelessWidget {
 
     double fontSize;
     if (charCount < 60) {
-      fontSize = context.responsiveFontSize(20);
+      fontSize = context.responsiveFontSize(context.isIPad ? 24:20);
     } else if (charCount < 100) {
-      fontSize = context.responsiveFontSize(17);
+      fontSize = context.responsiveFontSize(context.isIPad ? 20:17);
     } else if (charCount < 150) {
-      fontSize = context.responsiveFontSize(15);
+      fontSize = context.responsiveFontSize(context.isIPad ? 18:15);
     } else {
-      fontSize = context.responsiveFontSize(13);
+      fontSize = context.responsiveFontSize(context.isIPad ? 16:13);
     }
 
     return Padding(

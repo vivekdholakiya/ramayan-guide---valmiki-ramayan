@@ -8,6 +8,8 @@ import '../models/ramayan_category.dart';
 import '../providers/favorites_provider.dart';
 import '../providers/history_provider.dart';
 import '../providers/language_provider.dart';
+import '../providers/story_access_provider.dart';
+import '../services/ads.dart';
 import '../services/context_extensions.dart';
 import '../widgets/animated_interactions.dart';
 import '../widgets/category_card.dart';
@@ -20,7 +22,6 @@ import '../widgets/spiritual_decorations.dart';
 import 'categories_list_screen.dart';
 import 'category_screen.dart';
 import 'favorites_screen.dart';
-import 'item_detail_screen.dart';
 import 'settings_screen.dart';
 import 'status_screen.dart';
 
@@ -73,6 +74,7 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
 
     final language = ref.watch(languageProvider);
+    final storyAccess = ref.watch(storyAccessProvider);
     final continueReadingItem = ref.watch(continueReadingProvider);
     final recentlyViewed = ref.watch(historyProvider);
     final favorites = ref.watch(favoritesProvider);
@@ -113,14 +115,12 @@ class HomeScreen extends ConsumerWidget {
                         child: RamayanItemCard(
                           item: continueReadingItem,
                           languageCode: language.code,
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    ItemDetailScreen(item: continueReadingItem),
-                              ),
-                            );
-                          },
+                          isLocked: storyAccess.isStoryLocked(continueReadingItem),
+                          onTap: () => StoryAccessHelper.openStory(
+                            context: context,
+                            ref: ref,
+                            item: continueReadingItem,
+                          ),
                         ),
                       ),
                     ],
@@ -157,15 +157,15 @@ class HomeScreen extends ConsumerWidget {
                       ),
                       child: StaggeredGrid.count(
                         crossAxisCount: categoryCrossAxisCount,
-                        mainAxisSpacing: context.responsiveSize(14.0),
-                        crossAxisSpacing: context.responsiveSize(14.0),
+                        mainAxisSpacing: context.responsiveSize(8.0),
+                        crossAxisSpacing: context.responsiveSize(8.0),
                         children: RamayanCategory.categories
                             .asMap()
                             .entries
                             .map((entry) {
                           final index = entry.key;
                           final category = entry.value;
-                          final height = context.responsiveSize(250.0);
+                          final height = context.responsiveSize(context.isIPad ? 250.0 : 160.0);
                           return StaggeredEntrance(
                             index: index,
                             child: CategoryCard(
@@ -186,6 +186,17 @@ class HomeScreen extends ConsumerWidget {
                       ),
                     ),
 
+                    // Native Ad between Categories and Recently Viewed
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: context.responsiveSize(16.0),
+                        vertical: context.responsiveSize(10.0),
+                      ),
+                      child: const NativeAdWidget(
+                        templateType: NativeAdTemplateType.medium,
+                      ),
+                    ),
+
                     // 5. Recently Viewed Section (Only if history exists)
                     if (recentlyViewed.isNotEmpty) ...[
                       const MandalaDivider(),
@@ -197,18 +208,18 @@ class HomeScreen extends ConsumerWidget {
                       ...recentlyViewed.take(3).toList().asMap().entries.map((entry) {
                         final index = entry.key;
                         final item = entry.value;
+                        final isLocked = storyAccess.isStoryLocked(item);
                         return StaggeredEntrance(
                           index: index,
                           child: RamayanItemCard(
                             item: item,
                             languageCode: language.code,
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => ItemDetailScreen(item: item),
-                                ),
-                              );
-                            },
+                            isLocked: isLocked,
+                            onTap: () => StoryAccessHelper.openStory(
+                              context: context,
+                              ref: ref,
+                              item: item,
+                            ),
                           ),
                         );
                       }),
@@ -226,18 +237,18 @@ class HomeScreen extends ConsumerWidget {
                       ...favorites.take(3).toList().asMap().entries.map((entry) {
                         final index = entry.key;
                         final item = entry.value;
+                        final isLocked = storyAccess.isStoryLocked(item);
                         return StaggeredEntrance(
                           index: index,
                           child: RamayanItemCard(
                             item: item,
                             languageCode: language.code,
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => ItemDetailScreen(item: item),
-                                ),
-                              );
-                            },
+                            isLocked: isLocked,
+                            onTap: () => StoryAccessHelper.openStory(
+                              context: context,
+                              ref: ref,
+                              item: item,
+                            ),
                           ),
                         );
                       }),

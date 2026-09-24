@@ -7,10 +7,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../constants/app_colors.dart';
+import '../constants/app_strings.dart';
 import '../constants/app_typography.dart';
 import '../constants/util.dart';
 import '../models/status_item.dart';
 import '../providers/language_provider.dart';
+import '../services/ads.dart';
 import '../services/context_extensions.dart';
 import '../widgets/status_card.dart';
 
@@ -119,6 +121,20 @@ class _StatusViewerScreenState extends ConsumerState<StatusViewerScreen>
     }
   }
 
+  void _onShareWithAd() {
+    final language = ref.read(languageProvider);
+    adsControllerVar.showRewardedAd(
+      context,
+      title: AppStrings.get('ad_unlock_status_title', language.code),
+      description: AppStrings.get('ad_unlock_status_desc', language.code),
+      watchButtonText: AppStrings.get('ad_watch_btn', language.code),
+      maybeLaterText: AppStrings.get('ad_maybe_later_btn', language.code),
+      onRewardGranted: () {
+        _shareStatus();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final language = ref.watch(languageProvider);
@@ -190,7 +206,7 @@ class _StatusViewerScreenState extends ConsumerState<StatusViewerScreen>
                           icon: _isSharing
                               ? Icons.hourglass_top_rounded
                               : Icons.share_rounded,
-                          onTap: _shareStatus,
+                          onTap: _onShareWithAd,
                         ),
                       ],
                     ),
@@ -218,6 +234,7 @@ class _StatusViewerScreenState extends ConsumerState<StatusViewerScreen>
           ],
         ),
       ),
+      bottomNavigationBar: AdsBannerWidget(),
     );
   }
 }

@@ -17,6 +17,7 @@ import '../services/context_extensions.dart';
 import '../widgets/animated_interactions.dart';
 import '../widgets/diya_painter.dart';
 import '../widgets/responsive_container.dart';
+import '../services/ads.dart';
 import '../widgets/spiritual_decorations.dart';
 
 class ItemDetailScreen extends ConsumerStatefulWidget {
@@ -32,6 +33,21 @@ class ItemDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
+  bool _isExiting = false;
+
+  void _handleBack() {
+    if (_isExiting) return;
+    _isExiting = true;
+    adsControllerVar.onStoryExit(
+      context,
+      onContinue: () {
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -77,15 +93,21 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
     final categoryTitle = categoryObj?.getLocalizedTitle(language.code) ??
         widget.item.category;
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_rounded,
-            size: context.responsiveSize( context.isIPad? 28 : 24),
+    return PopScope(
+      canPop: _isExiting,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _handleBack();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back_rounded,
+              size: context.responsiveSize(context.isIPad ? 28 : 24),
+            ),
+            onPressed: _handleBack,
           ),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
         title: Text(
           categoryTitle,
           style: AppTypography.getStyle(
@@ -97,21 +119,15 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
         ),
         actions: [
           IconButton(
-            icon: AnimatedScale(
-              scale: isFav ? 1.15 : 1.0,
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeOutBack,
-              child: Icon(
-                isFav ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-                size: context.responsiveSize( context.isIPad? 28 : 24),
-                color: isFav ? AppColors.deepSaffron : null,
-              ),
+            icon: Icon(
+              isFav ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+              size: context.responsiveSize(context.isIPad ? 28 : 24),
+              color: isFav ? AppColors.deepSaffron : null,
             ),
             // tooltip: AppStrings.get('nav_favorites', language.code),
             onPressed: () {
               ref.read(favoritesProvider.notifier).toggleFavorite(widget.item);
               setState(() {});
-
             },
           ),
           IconButton(
@@ -243,6 +259,10 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
           ),
         ),
       ),
-    );
-  }
+      bottomNavigationBar: AdsBannerWidget(),
+
+    ),
+  );
 }
+}
+

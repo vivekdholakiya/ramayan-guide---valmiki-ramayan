@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// TapScaleEffect provides a subtle, premium press feedback (1.0 -> 0.97 -> 1.0)
 /// for interactive cards, buttons, and touchable elements.
-class TapScaleEffect extends StatefulWidget {
+class TapScaleEffect extends StatelessWidget {
   final Widget child;
   final VoidCallback? onTap;
   final double scaleDown;
@@ -17,49 +17,16 @@ class TapScaleEffect extends StatefulWidget {
   });
 
   @override
-  State<TapScaleEffect> createState() => _TapScaleEffectState();
-}
-
-class _TapScaleEffectState extends State<TapScaleEffect> {
-  bool _isPressed = false;
-
-  void _onTapDown(TapDownDetails details) {
-    if (widget.onTap != null) {
-      setState(() => _isPressed = true);
-    }
-  }
-
-  void _onTapUp(TapUpDetails details) {
-    if (_isPressed) {
-      setState(() => _isPressed = false);
-    }
-  }
-
-  void _onTapCancel() {
-    if (_isPressed) {
-      setState(() => _isPressed = false);
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: _onTapDown,
-      onTapUp: _onTapUp,
-      onTapCancel: _onTapCancel,
-      onTap: widget.onTap,
+      onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: AnimatedScale(
-        scale: _isPressed ? widget.scaleDown : 1.0,
-        duration: widget.duration,
-        curve: Curves.easeInOut,
-        child: widget.child,
-      ),
+      child: child,
     );
   }
 }
 
-/// StaggeredEntrance provides a calm, progressive entrance animation (Fade + slight upward slide + subtle scale)
+/// StaggeredEntrance provides a calm, progressive entrance animation (Fade + slight upward slide)
 /// for cards, list items, grid cells, and section headers.
 class StaggeredEntrance extends StatefulWidget {
   final Widget child;
@@ -105,12 +72,7 @@ class _StaggeredEntranceState extends State<StaggeredEntrance> {
         offset: _isVisible ? Offset.zero : widget.slideOffset,
         duration: widget.duration,
         curve: Curves.easeOutCubic,
-        child: AnimatedScale(
-          scale: _isVisible ? 1.0 : 0.97,
-          duration: widget.duration,
-          curve: Curves.easeOutCubic,
-          child: widget.child,
-        ),
+        child: widget.child,
       ),
     );
   }

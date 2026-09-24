@@ -13,12 +13,14 @@ class RamayanItemCard extends ConsumerStatefulWidget {
   final RamayanItem item;
   final String languageCode;
   final VoidCallback onTap;
+  final bool isLocked;
 
   const RamayanItemCard({
     super.key,
     required this.item,
     required this.languageCode,
     required this.onTap,
+    this.isLocked = false,
   });
 
   @override
@@ -26,8 +28,6 @@ class RamayanItemCard extends ConsumerStatefulWidget {
 }
 
 class _RamayanItemCardState extends ConsumerState<RamayanItemCard> {
-  bool _isHovered = false;
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -39,135 +39,115 @@ class _RamayanItemCardState extends ConsumerState<RamayanItemCard> {
         ? widget.item.description
         : AppStrings.get('read_more', widget.languageCode);
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      cursor: SystemMouseCursors.click,
-      child: TapScaleEffect(
-        onTap: widget.onTap,
-        child: AnimatedScale(
-          scale: _isHovered ? 1.01 : 1.0,
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeInOut,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            margin: EdgeInsets.symmetric(
-              horizontal: context.responsiveSize(16.0),
-              vertical: context.responsiveSize(6.0),
+    return TapScaleEffect(
+      onTap: widget.onTap,
+      child: Container(
+        margin: EdgeInsets.symmetric(
+          horizontal: context.responsiveSize(16.0),
+          vertical: context.responsiveSize(6.0),
+        ),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkCard : AppColors.parchmentCard,
+          borderRadius: BorderRadius.circular(context.responsiveSize(18.0)),
+          border: Border.all(
+            color: AppColors.warmGold.withValues(alpha: isDark ? 0.3 : 0.4),
+            width: context.responsiveSize(1.0),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.04),
+              blurRadius: context.responsiveSize(6),
+              offset: Offset(0, context.responsiveSize(2)),
             ),
-            decoration: BoxDecoration(
-              color: isDark ? AppColors.darkCard : AppColors.parchmentCard,
-              borderRadius: BorderRadius.circular(context.responsiveSize(18.0)),
-              border: Border.all(
-                color: _isHovered
-                    ? AppColors.warmGold
-                    : AppColors.warmGold.withValues(alpha: isDark ? 0.3 : 0.4),
-                width: _isHovered
-                    ? context.responsiveSize(1.5)
-                    : context.responsiveSize(1.0),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: _isHovered
-                      ? AppColors.warmGold.withValues(alpha: isDark ? 0.25 : 0.2)
-                      : Colors.black.withValues(alpha: isDark ? 0.25 : 0.04),
-                  blurRadius: _isHovered
-                      ? context.responsiveSize(12)
-                      : context.responsiveSize(6),
-                  offset: Offset(
-                    0,
-                    _isHovered
-                        ? context.responsiveSize(4)
-                        : context.responsiveSize(2),
-                  ),
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(context.responsiveSize(18.0)),
-              child: Column(
+          ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(context.responsiveSize(18.0)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.item.title,
-                          style: AppTypography.getStyle(
-                            languageCode: widget.languageCode,
-                            fontSize: context.responsiveFontSize( context.isIPad? 22 : 18.0),
-                            fontWeight: FontWeight.bold,
-                            color: isDark
-                                ? AppColors.textLightIvory
-                                : AppColors.textDarkBrown,
-                          ),
-                        ),
+                  Expanded(
+                    child: Text(
+                      widget.item.title,
+                      style: AppTypography.getStyle(
+                        languageCode: widget.languageCode,
+                        fontSize: context.responsiveFontSize(context.isIPad ? 22 : 18.0),
+                        fontWeight: FontWeight.bold,
+                        color: isDark
+                            ? AppColors.textLightIvory
+                            : AppColors.textDarkBrown,
                       ),
-                      SizedBox(width: context.responsiveSize(8.0)),
-                      GestureDetector(
-                        onTap: () {
-                          ref
-                              .read(favoritesProvider.notifier)
-                              .toggleFavorite(widget.item);
-                          setState(() {});
-                        },
-                        child: AnimatedScale(
-                          scale: isFav ? 1.15 : 1.0,
-                          duration: const Duration(milliseconds: 200),
-                          curve: Curves.easeOutBack,
-                          child: Icon(
-                            isFav
-                                ? Icons.bookmark_rounded
-                                : Icons.bookmark_border_rounded,
-                            size: context.responsiveSize( context.isIPad? 28 : 24.0),
-                            color: isFav
-                                ? AppColors.deepSaffron
-                                : AppColors.textMutedBrown,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: context.responsiveSize(8.0)),
-                  Text(
-                    formatDescription(previewText),
-                    maxLines: context.isIPad? 4 : 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTypography.getStyle(
-                      languageCode: widget.languageCode,
-                      fontSize: context.responsiveFontSize( context.isIPad? 18 : 14.0),
-                      fontWeight: FontWeight.normal,
-                      color: isDark
-                          ? AppColors.textMutedIvory
-                          : AppColors.textMutedBrown,
-                      height: 1.5,
                     ),
                   ),
-                  SizedBox(height: context.responsiveSize(12.0)),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        AppStrings.get('read_more', widget.languageCode),
-                        style: AppTypography.getStyle(
-                          languageCode: widget.languageCode,
-                          fontSize: context.responsiveFontSize( context.isIPad? 15 : 13.0),
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.deepSaffron,
-                        ),
-                      ),
-                      SizedBox(width: context.responsiveSize(4.0)),
-                      Icon(
-                        Icons.arrow_forward_rounded,
-                        size: context.responsiveSize(16.0),
-                        color: AppColors.deepSaffron,
-                      ),
-                    ],
+                  SizedBox(width: context.responsiveSize(8.0)),
+                  // if (!widget.isLocked)
+                  GestureDetector(
+                    onTap: () {
+                      ref
+                          .read(favoritesProvider.notifier)
+                          .toggleFavorite(widget.item);
+                      setState(() {});
+                    },
+                    child: Icon(
+                      isFav
+                          ? Icons.bookmark_rounded
+                          : Icons.bookmark_border_rounded,
+                      size: context.responsiveSize(context.isIPad ? 28 : 24.0),
+                      color: isFav
+                          ? AppColors.deepSaffron
+                          : AppColors.textMutedBrown,
+                    ),
                   ),
                 ],
               ),
-            ),
+              SizedBox(height: context.responsiveSize(8.0)),
+              Text(
+                formatDescription(previewText),
+                maxLines: context.isIPad ? 4 : 3,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.getStyle(
+                  languageCode: widget.languageCode,
+                  fontSize: context.responsiveFontSize(context.isIPad ? 18 : 14.0),
+                  fontWeight: FontWeight.normal,
+                  color: isDark
+                      ? AppColors.textMutedIvory
+                      : AppColors.textMutedBrown,
+                  height: 1.5,
+                ),
+              ),
+              SizedBox(height: context.responsiveSize(12.0)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  if (widget.isLocked) ...[
+                    Icon(
+                      Icons.lock_rounded,
+                      size: context.responsiveSize(context.isIPad ? 22.0 : 18.0),
+                      color: AppColors.deepSaffron,
+                    ),
+                  ] else ...[
+                    Text(
+                      AppStrings.get('read_more', widget.languageCode),
+                      style: AppTypography.getStyle(
+                        languageCode: widget.languageCode,
+                        fontSize: context.responsiveFontSize(context.isIPad ? 15 : 13.0),
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.deepSaffron,
+                      ),
+                    ),
+                    SizedBox(width: context.responsiveSize(4.0)),
+                    Icon(
+                      Icons.arrow_forward_rounded,
+                      size: context.responsiveSize(16.0),
+                      color: AppColors.deepSaffron,
+                    ),
+                  ],
+                ],
+              ),
+            ],
           ),
         ),
       ),

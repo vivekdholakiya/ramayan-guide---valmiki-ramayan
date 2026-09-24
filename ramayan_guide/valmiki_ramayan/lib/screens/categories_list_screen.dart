@@ -53,12 +53,12 @@ class CategoriesListScreen extends ConsumerWidget {
           child: MasonryGridView.count(
             padding: EdgeInsets.all(context.responsiveSize(16.0)),
             crossAxisCount: crossAxisCount,
-            mainAxisSpacing: context.responsiveSize(16.0),
-            crossAxisSpacing: context.responsiveSize(16.0),
+            mainAxisSpacing: context.responsiveSize(8.0),
+            crossAxisSpacing: context.responsiveSize(8.0),
             itemCount: RamayanCategory.categories.length,
             itemBuilder: (context, index) {
               final category = RamayanCategory.categories[index];
-              final height = context.responsiveSize(250.0);
+              final height = context.responsiveSize(context.isIPad ? 250.0 : 160.0);
               return StaggeredEntrance(
                 index: index,
                 child: CategoryCard(
@@ -78,6 +78,8 @@ class CategoriesListScreen extends ConsumerWidget {
           ),
         ),
       ),
+
+
     );
   }
 }

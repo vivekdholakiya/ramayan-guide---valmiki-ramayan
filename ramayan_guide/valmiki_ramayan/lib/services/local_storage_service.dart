@@ -122,6 +122,15 @@ class LocalStorageService {
     await _prefs.setString(_keyContinueReading, json.encode(item.toJson()));
   }
 
+  // --- Category Story Order Cache ---
+  List<String> getCategoryStoryOrder(String categoryId) {
+    return _prefs.getStringList('category_order_$categoryId') ?? [];
+  }
+
+  Future<void> saveCategoryStoryOrder(String categoryId, List<String> storyIds) async {
+    await _prefs.setStringList('category_order_$categoryId', storyIds);
+  }
+
   // --- Clear Content Data on Language Change ---
   Future<void> clearUserContentData() async {
     await _prefs.remove(_keyFavorites);
@@ -129,3 +138,4 @@ class LocalStorageService {
     await _prefs.remove(_keyContinueReading);
   }
 }
+

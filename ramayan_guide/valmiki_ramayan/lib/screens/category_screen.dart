@@ -7,6 +7,8 @@ import '../models/app_settings.dart';
 import '../models/ramayan_category.dart';
 import '../providers/category_provider.dart';
 import '../providers/language_provider.dart';
+import '../providers/story_access_provider.dart';
+import '../services/ads.dart';
 import '../services/context_extensions.dart';
 import '../widgets/animated_interactions.dart';
 import '../widgets/empty_state_view.dart';
@@ -14,7 +16,6 @@ import '../widgets/fast_search_bar.dart';
 import '../widgets/ramayan_item_card.dart';
 import '../widgets/responsive_container.dart';
 import '../widgets/skeleton_loader.dart';
-import 'item_detail_screen.dart';
 
 class CategoryScreen extends ConsumerWidget {
   final RamayanCategory category;
@@ -27,6 +28,7 @@ class CategoryScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final language = ref.watch(languageProvider);
+    final storyAccess = ref.watch(storyAccessProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final categoryTitle = category.getLocalizedTitle(language.code);
 
@@ -98,25 +100,46 @@ class CategoryScreen extends ConsumerWidget {
                       }
                     }
 
+                    final adCount = items.length ~/ 5;
+                    final totalCount = items.length + adCount;
+
                     return ListView.builder(
                       padding: EdgeInsets.symmetric(
                         vertical: context.responsiveSize(12.0),
                       ),
-                      itemCount: items.length,
+                      itemCount: totalCount,
                       itemBuilder: (context, index) {
-                        final item = items[index];
+                        // Insert a Native Ad after every 5 stories
+                        final isAd = (index + 1) % 5 == 0;
+                        if (isAd) {
+                          final adIndex = index ~/ 5;
+                          return Padding(
+                            key: ValueKey('category_native_ad_$adIndex'),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: context.responsiveSize(16.0),
+                              vertical: context.responsiveSize(8.0),
+                            ),
+                            child: const NativeAdWidget(
+                              templateType: NativeAdTemplateType.small,
+                            ),
+                          );
+                        }
+
+                        final storyIndex = index - (index ~/ 6);
+                        final item = items[storyIndex];
+                        final isLocked = storyAccess.isStoryLocked(item);
+
                         return StaggeredEntrance(
                           index: index,
                           child: RamayanItemCard(
                             item: item,
                             languageCode: language.code,
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => ItemDetailScreen(item: item),
-                                ),
-                              );
-                            },
+                            isLocked: isLocked,
+                            onTap: () => StoryAccessHelper.openStory(
+                              context: context,
+                              ref: ref,
+                              item: item,
+                            ),
                           ),
                         );
                       },
@@ -136,6 +159,7 @@ class CategoryScreen extends ConsumerWidget {
           ),
         ),
       ),
+      bottomNavigationBar: Padding(padding: EdgeInsetsGeometry.only(top: context.responsiveSize(10)),child: AdsBannerWidget()),
     );
   }
 }

@@ -7,6 +7,7 @@ import '../constants/app_typography.dart';
 import '../models/status_item.dart';
 import '../providers/language_provider.dart';
 import '../providers/status_provider.dart';
+import '../services/ads.dart';
 import '../services/context_extensions.dart';
 import '../widgets/empty_state_view.dart';
 import '../widgets/responsive_container.dart';
@@ -207,7 +208,7 @@ class _StatusCardScrollView extends StatelessWidget {
     return
       context.isIPad ?
       ResponsiveContainer(
-        maxWidth: context.screenHeight/2 -50,
+        maxWidth: context.screenHeight/2 - 90,
         child: AlignedGridView.count(
           padding: EdgeInsets.symmetric(
             horizontal: context.responsiveSize(20),
@@ -237,7 +238,7 @@ class _StatusCardScrollView extends StatelessWidget {
 
           :
       ResponsiveContainer(
-      maxWidth: context.isIPad ?context.responsiveSize (550) :context.responsiveSize (480),
+      maxWidth: context.screenWidth - 20 ,
       child: ListView.separated(
         padding: EdgeInsets.symmetric(
           horizontal: context.responsiveSize(20),
