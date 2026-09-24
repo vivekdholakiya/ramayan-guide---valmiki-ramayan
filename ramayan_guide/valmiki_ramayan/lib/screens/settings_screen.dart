@@ -25,7 +25,7 @@ class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   Future<void> _shareApp(BuildContext context, String languageCode) async {
-    final text = '${AppStrings.get('share_text', languageCode)}\n$appUrl';
+    final text = '${AppStrings.get('share_text_description', languageCode)}\n$appUrl';
     final box = context.findRenderObject() as RenderBox?;
     final origin = box != null ? (box.localToGlobal(Offset.zero) & box.size) : null;
     await Share.share(text, sharePositionOrigin: origin);

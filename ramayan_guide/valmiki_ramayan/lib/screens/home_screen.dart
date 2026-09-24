@@ -134,16 +134,38 @@ class HomeScreen extends ConsumerWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            AppStrings.get(
-                                'main_categories_header', language.code),
-                            style: AppTypography.getStyle(
-                              languageCode: language.code,
-                              fontSize: context.responsiveFontSize(18),
-                              fontWeight: FontWeight.bold,
-                              color: isDark
-                                  ? AppColors.textLightIvory
-                                  : AppColors.textDarkBrown,
+                          Expanded(
+                            child: Text(
+                              AppStrings.get(
+                                  'main_categories_header', language.code),
+                              style: AppTypography.getStyle(
+                                languageCode: language.code,
+                                fontSize: context.responsiveFontSize(18),
+                                fontWeight: FontWeight.bold,
+                                color: isDark
+                                    ? AppColors.textLightIvory
+                                    : AppColors.textDarkBrown,
+                              ),
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              onNavigate?.call(1);
+
+                            },
+                            child: Text(
+                              AppStrings.get(
+                                'view_all',
+                                language.code,
+                              ),
+                              textAlign: TextAlign.end,
+                              style: AppTypography.getStyle(
+                                decoration: TextDecoration.underline,
+                                languageCode: language.code,
+                                fontSize: context.responsiveFontSize(14),
+                                fontWeight: FontWeight.normal,
+                                color: AppColors.deepSaffron,
+                              ),
                             ),
                           ),
                         ],
@@ -155,17 +177,22 @@ class HomeScreen extends ConsumerWidget {
                       padding: EdgeInsets.symmetric(
                         horizontal: context.responsiveSize(16.0),
                       ),
-                      child: StaggeredGrid.count(
+                      child:StaggeredGrid.count(
                         crossAxisCount: categoryCrossAxisCount,
                         mainAxisSpacing: context.responsiveSize(8.0),
                         crossAxisSpacing: context.responsiveSize(8.0),
                         children: RamayanCategory.categories
                             .asMap()
                             .entries
+                            .where((entry) => entry.key == 0 || entry.key == 2)
                             .map((entry) {
                           final index = entry.key;
                           final category = entry.value;
-                          final height = context.responsiveSize(context.isIPad ? 250.0 : 160.0);
+
+                          final height = context.responsiveSize(
+                            context.isIPad ? 250.0 : 170.0,
+                          );
+
                           return StaggeredEntrance(
                             index: index,
                             child: CategoryCard(
@@ -175,8 +202,9 @@ class HomeScreen extends ConsumerWidget {
                               onTap: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (_) =>
-                                        CategoryScreen(category: category),
+                                    builder: (_) => CategoryScreen(
+                                      category: category,
+                                    ),
                                   ),
                                 );
                               },

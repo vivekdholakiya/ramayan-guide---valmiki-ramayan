@@ -63,7 +63,16 @@ class AppStrings {
       'retry_btn': 'ફરી પ્રયાસ કરો',
       'read_more': 'વધુ વાંચો',
       'items_count': 'આઇટમ્સ',
-      'share_text': 'વાલ્મીકિ રામાયણ એપ્લિકેશનમાંથી',
+// Gujarati
+      'share_text':
+      '📖 સંપૂર્ણ કથા વાંચો અને વાલ્મિકી રામાયણના શાશ્વત જ્ઞાનને જાણો.\n'
+          'સંપૂર્ણ કથા અને વધુ આધ્યાત્મિક સામગ્રી વાંચવા માટે Valmiki Ramayan App ડાઉનલોડ કરો.\n'
+          '✨ Valmiki Ramayan App પરથી શેર કરેલ.',
+      // Gujarati
+      "share_text_description":
+      "😊 હું આ એપનો ઉપયોગ કરીને ખૂબ ખુશ છું! "
+          "તમે પણ Valmiki Ramayan App નો ઉપયોગ કરો અને રામાયણની સુંદર કથાઓ તથા આધ્યાત્મિક જ્ઞાનનો આનંદ માણો.\n\n"
+          "📲 એપ ડાઉનલોડ કરવા માટે નીચે આપેલી લિંક પર ક્લિક કરો.",
       'link_copied': 'લિંક નકલ કરી',
       'theme_light': 'લાઇટ (પ્રકાશ)',
       'theme_dark': 'ડાર્ક (અંધકાર)',
@@ -94,6 +103,7 @@ class AppStrings {
       'ad_watch_btn': 'જાહેરાત જુઓ',
       'ad_maybe_later_btn': 'પછીથી',
       'ad_not_available': 'જાહેરાત ઉપલબ્ધ નથી, કૃપા કરીને ફરી પ્રયાસ કરો.',
+      "view_all": "બધું જુઓ",
     },
     'hi': {
       'app_title': 'वाल्मीकि रामायण',
@@ -127,7 +137,19 @@ class AppStrings {
       'retry_btn': 'पुनः प्रयास करें',
       'read_more': 'और पढ़ें',
       'items_count': 'सामग्री',
-      'share_text': 'वाल्मीकि रामायण ऐप से',
+// Hindi
+      'share_text':
+      '📖 पूरी कथा पढ़ें और वाल्मीकि रामायण के शाश्वत ज्ञान को जानें।\n'
+          'पूरी कथा और अधिक आध्यात्मिक सामग्री पढ़ने के लिए Valmiki Ramayan App डाउनलोड करें।\n'
+          '✨ Valmiki Ramayan App से साझा किया गया।',
+
+      // Hindi
+      "share_text_description":
+      "😊 मैं इस ऐप का उपयोग करके बहुत खुश हूँ! "
+          "आप भी Valmiki Ramayan App का उपयोग करें और रामायण की सुंदर कथाओं एवं आध्यात्मिक ज्ञान का आनंद लें।\n\n"
+          "📲 ऐप डाउनलोड करने के लिए नीचे दिए गए लिंक पर क्लिक करें।",
+
+
       'link_copied': 'लिंक कॉपी किया गया',
       'theme_light': 'लाइट (प्रकाश)',
       'theme_dark': 'डार्क (अंधकार)',
@@ -183,6 +205,7 @@ class AppStrings {
       'ad_watch_btn': 'विज्ञापन देखें',
       'ad_maybe_later_btn': 'बाद में',
       'ad_not_available': 'विज्ञापन उपलब्ध नहीं है, कृपया पुनः प्रयास करें।',
+      "view_all": "सभी देखें",
     },
     'en': {
       'app_title': 'Valmiki Ramayan',
@@ -218,8 +241,18 @@ class AppStrings {
       'Please check your internet connection and try again.',
       'retry_btn': 'Retry',
       'read_more': 'Read More',
+      "view_all":"View All",
       'items_count': 'items',
-      'share_text': 'Shared from Valmiki Ramayan App',
+      // English
+      'share_text':
+      '📖 Read the full story and discover the timeless wisdom of Valmiki Ramayan.\n'
+          'Download the Valmiki Ramayan App to explore the complete story and more spiritual content.\n'
+          '✨ Shared from the Valmiki Ramayan App.',
+      // English
+      "share_text_description":
+      "😊 I’m happy using this app! "
+          "You should try the Valmiki Ramayan App too and explore the beautiful stories and spiritual wisdom of Ramayan.\n\n"
+          "📲 To download the app, click the link below.",
       'link_copied': 'Link copied to clipboard',
       'theme_light': 'Light Mode',
       'theme_dark': 'Spiritual Dark Mode',

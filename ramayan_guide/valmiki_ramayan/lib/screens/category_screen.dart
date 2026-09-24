@@ -100,7 +100,7 @@ class CategoryScreen extends ConsumerWidget {
                       }
                     }
 
-                    final adCount = items.length ~/ 5;
+                    final adCount = items.length ~/ 4;
                     final totalCount = items.length + adCount;
 
                     return ListView.builder(
@@ -109,10 +109,16 @@ class CategoryScreen extends ConsumerWidget {
                       ),
                       itemCount: totalCount,
                       itemBuilder: (context, index) {
-                        // Insert a Native Ad after every 5 stories
+                        // Ad appears after every 4 stories:
+                        // 4 stories -> ad
+                        // 4 stories -> ad
+                        // 4 stories -> ad
+
                         final isAd = (index + 1) % 5 == 0;
+
                         if (isAd) {
-                          final adIndex = index ~/ 5;
+                          final adIndex = (index + 1) ~/ 5;
+
                           return Padding(
                             key: ValueKey('category_native_ad_$adIndex'),
                             padding: EdgeInsets.symmetric(
@@ -125,7 +131,12 @@ class CategoryScreen extends ConsumerWidget {
                           );
                         }
 
-                        final storyIndex = index - (index ~/ 6);
+                        // Number of ads that appeared before this index
+                        final adsBefore = index ~/ 5;
+
+                        // Original item index
+                        final storyIndex = index - adsBefore;
+
                         final item = items[storyIndex];
                         final isLocked = storyAccess.isStoryLocked(item);
 
@@ -144,6 +155,54 @@ class CategoryScreen extends ConsumerWidget {
                         );
                       },
                     );
+
+                    // return ListView.builder(
+                    //   padding: EdgeInsets.symmetric(
+                    //     vertical: context.responsiveSize(12.0),
+                    //   ),
+                    //
+                    //   // 4 stories + 1 ad
+                    //   // પછી remaining stories
+                    //   itemCount: items.length + 1,
+                    //
+                    //   itemBuilder: (context, index) {
+                    //     // Show ONE Native Ad after first 4 stories
+                    //     if (index == 4) {
+                    //       return Padding(
+                    //         key: const ValueKey('category_native_ad'),
+                    //         padding: EdgeInsets.symmetric(
+                    //           horizontal: context.responsiveSize(16.0),
+                    //           vertical: context.responsiveSize(8.0),
+                    //         ),
+                    //         child: const NativeAdWidget(
+                    //           templateType: NativeAdTemplateType.small,
+                    //         ),
+                    //       );
+                    //     }
+                    //
+                    //     // Map ListView index back to original story index.
+                    //     // After the ad, subtract 1 because ad occupies one position.
+                    //     final storyIndex = index > 4 ? index - 1 : index;
+                    //
+                    //     final item = items[storyIndex];
+                    //     final isLocked = storyAccess.isStoryLocked(item);
+                    //
+                    //     return StaggeredEntrance(
+                    //       index: index,
+                    //       child: RamayanItemCard(
+                    //         item: item,
+                    //         languageCode: language.code,
+                    //         isLocked: isLocked,
+                    //         onTap: () => StoryAccessHelper.openStory(
+                    //           context: context,
+                    //           ref: ref,
+                    //           item: item,
+                    //         ),
+                    //       ),
+                    //     );
+                    //   },
+                    // );
+
                   },
                   loading: () => const SkeletonItemList(itemCount: 6),
                   error: (err, stack) => EmptyStateView(

@@ -41,9 +41,8 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
     adsControllerVar.onStoryExit(
       context,
       onContinue: () {
-        if (mounted) {
-          Navigator.of(context).pop();
-        }
+        if (!mounted) return;
+        Navigator.of(context).pop();
       },
     );
   }
@@ -58,21 +57,44 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
 
   void _shareItem(BuildContext context, String langCode) {
     final title = widget.item.title;
-    final categoryName = RamayanCategory.findById(widget.item.category)
+
+    final categoryName =
+        RamayanCategory.findById(widget.item.category)
             ?.getLocalizedTitle(langCode) ??
-        widget.item.category;
+            widget.item.category;
+
+    // Share only first 5 lines/portion of description
+    final description = widget.item.description.trim();
+
+    final shortDescription = description.length > 350
+        ? '${description.substring(0, 350)}...'
+        : description;
+
     final text =
-        '🚩 *$title* ($categoryName)\n\n${widget.item.description}\n\n- ${AppStrings.get('share_text', langCode)}';
+        '🚩 *$title* ($categoryName)\n\n'
+        '$shortDescription\n\n'
+        '${AppStrings.get('share_text', langCode)}'
+    '\n${appUrl}';
 
     try {
       final box = context.findRenderObject() as RenderBox?;
-      final origin = box != null ? (box.localToGlobal(Offset.zero) & box.size) : null;
-      Share.share(text, sharePositionOrigin: origin);
+      final origin =
+      box != null ? (box.localToGlobal(Offset.zero) & box.size) : null;
+
+      Share.share(
+        text,
+        sharePositionOrigin: origin,
+      );
     } catch (_) {
-      Clipboard.setData(ClipboardData(text: text));
+      Clipboard.setData(
+        ClipboardData(text: text),
+      );
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppStrings.get('link_copied', langCode)),
+          content: Text(
+            AppStrings.get('link_copied', langCode),
+          ),
           duration: const Duration(seconds: 2),
         ),
       );
@@ -94,7 +116,7 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
         widget.item.category;
 
     return PopScope(
-      canPop: _isExiting,
+      canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
         _handleBack();

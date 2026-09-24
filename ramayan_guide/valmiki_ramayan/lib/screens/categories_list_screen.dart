@@ -58,7 +58,7 @@ class CategoriesListScreen extends ConsumerWidget {
             itemCount: RamayanCategory.categories.length,
             itemBuilder: (context, index) {
               final category = RamayanCategory.categories[index];
-              final height = context.responsiveSize(context.isIPad ? 250.0 : 160.0);
+              final height = context.responsiveSize(context.isIPad ? 250.0 :  170.0);
               return StaggeredEntrance(
                 index: index,
                 child: CategoryCard(
